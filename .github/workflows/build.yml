@@ -1,0 +1,23 @@
+name: Build JUCE Plugin
+
+on: [push]
+
+jobs:
+  build-windows:
+    name: Windows Standalone Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source code from repo
+        uses: actions/checkout@v5
+      - name: Get latest version of CMake
+        uses: lukka/get-cmake@v3
+      - name: Configure project w/ CMake for release
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE 
+      - name: Build project
+        run: cmake --build build --config Release
+      - name: Upload Artifacts (standalone Windows app)
+        uses: actions/upload-artifact@v5
+        with:
+          name: Windows-Binaries
+          path: |
+            build/Release/*.exe
