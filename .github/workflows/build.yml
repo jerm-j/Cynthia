@@ -10,9 +10,9 @@ jobs:
       - name: Checkout source code from repo
         uses: actions/checkout@v5
       - name: Get latest version of CMake
-        uses: lukka/setup-cmake@v1
+        uses: lukka/setup-cmake@latest
         with:
-          cmakeVersion: 3.28.3
+          cmakeVersion: 3.25.0
       - name: Configure project w/ CMake for release
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE 
       - name: Build project
