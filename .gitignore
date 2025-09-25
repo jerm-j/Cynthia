@@ -1,0 +1,11 @@
+# JUCE library
+JUCE/
+
+# Build directory (contains all binaries and object files)
+build/
+
+# VSCode configurations
+.vscode/
+
+# AudioPluginHost debug config
+cynthia.filtergraph
