@@ -7,8 +7,10 @@ jobs:
     name: Windows Standalone Build
     runs-on: windows-latest
     steps:
-      - name: Checkout source code from repo
+      - name: Checkout source code from repo (w/ JUCE as submodule)
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
       - name: Get latest version of CMake
         uses: lukka/get-cmake@latest
         with:
