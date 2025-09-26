@@ -34,4 +34,4 @@ jobs:
         with:
           name: Windows-Binaries
           path: |
-            build\Release\*.exe
+            build\Cynthia_artefacts\Release\Standalone\Cynthia.exe
