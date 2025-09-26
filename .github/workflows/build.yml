@@ -6,6 +6,10 @@ jobs:
   build-windows:
     name: Windows Standalone Build
     runs-on: windows-latest
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Checkout source code from repo (w/ JUCE as submodule)
         uses: actions/checkout@v5
@@ -19,6 +23,11 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE 
       - name: Build project
         run: cmake --build build --config Release
+      - name: Attest plugin
+        uses: actions/attest@v2
+        with:
+          subject-path: ${{github.workspace}}/build/Release/Cynthia.exe
+          predicate-type: slsa-provenance
       - name: Upload Artifacts (standalone Windows app)
         uses: actions/upload-artifact@v4
         with:
