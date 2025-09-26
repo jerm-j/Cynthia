@@ -28,6 +28,7 @@ jobs:
         with:
           subject-path: ${{github.workspace}}\build\Cynthia_artefacts\Release\Standalone\Cynthia.exe
           predicate-type: slsa-provenance
+          predicate: '{}'
       - name: Upload Artifacts (standalone Windows app)
         uses: actions/upload-artifact@v4
         with:
