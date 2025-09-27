@@ -3,35 +3,44 @@ name: Build JUCE Plugin
 on: [push]
 
 jobs:
+
   build-windows:
+
     name: Windows Standalone Build
     runs-on: windows-latest
     permissions:
       id-token: write
       contents: read
       attestations: write
+
     steps:
+
       - name: Checkout source code from repo (w/ JUCE as submodule)
         uses: actions/checkout@v5
         with:
           submodules: recursive
+
       - name: Get latest version of CMake
         uses: lukka/get-cmake@latest
         with:
-          cmakeVersion: 3.25.0
+          cmakeVersion: 4.1.1
+
       - name: Configure project w/ CMake for release
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE 
+
       - name: Build project
         run: cmake --build build --config Release
+
       - name: Attest plugin
         uses: actions/attest@v2
         with:
           subject-path: ${{github.workspace}}\build\Cynthia_artefacts\Release\Standalone\Cynthia.exe
           predicate-type: slsa-provenance
           predicate: '{}'
+
       - name: Upload Artifacts (standalone Windows app)
         uses: actions/upload-artifact@v4
         with:
-          name: Windows-Binaries
+          name: Cynthia (Windows Executable)
           path: |
             build\Cynthia_artefacts\Release\Standalone\Cynthia.exe
