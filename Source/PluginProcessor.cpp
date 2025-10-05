@@ -97,6 +97,7 @@ void CynthiaAudioProcessor::releaseResources()
     // spare memory, etc.
 }
 
+// Called by the DAW to query the number of channels supported
 bool CynthiaAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
@@ -126,31 +127,77 @@ void CynthiaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 {
     juce::ignoreUnused (midiMessages);
 
+    /* 
+        Denormals are floating point numbers that are so small, they are practically 0.
+        Denormals are slower than regular floating point numbers, so we treat them as 0.
+     
+        juce::ScopedNoDenormals sets a CPU flag for this method to truncate floating point numbers
+        to 0 instead of turning them into denormal numbers.
+    */
     juce::ScopedNoDenormals noDenormals;
+
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
+    // JUCE does not guarantee the AudioBuffer is already cleared, so we must clear it of potential garbage values.
+    // this is to prevent, in the worst case, screaming feedback!
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+        buffer.clear (i, 0, buffer.getNumSamples());
     }
+
+    splitBufferByEvents(buffer, midiMessages);
+}
+
+// Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
+void CynthiaAudioProcessor::splitBufferByEvents(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+{
+    int bufferOffset = 0;
+  
+    for(const auto metadata : midiMessages)
+    {
+        // Render the audio that happens before this event (if any)
+        int samplesThisSegment = metadata.samplePosition - bufferOffset;
+        if(samplesThisSegment > 0)
+        {
+            render(buffer, samplesThisSegment, bufferOffset);
+            bufferOffset += samplesThisSegment;
+        }
+
+        // Handle the event. Ignore midi messages such as sysex.
+        if(metadata.numBytes <= 3) 
+        {
+            uint8_t data1 = (metadata.numBytes >= 2) ? metadata.data[1] : 0;
+            uint8_t data2 = (metadata.numBytes == 3) ? metadata.data[2] : 0;
+            handleMIDI(metadata.data[0], data1, data2);
+        }
+
+        /* 
+            Render the audio after the last MIDI event. If there were no
+            MIDI events at all, this renders the entire buffer.
+        */
+        int samplesLastSegment = buffer.getNumSamples() - bufferOffset;
+        if(samplesLastSegment > 0)
+        {
+            render(buffer, samplesLastSegment, bufferOffset);
+        }
+
+        midiMessages.clear();
+    }
+}
+
+// Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
+void CynthiaAudioProcessor::handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2) 
+{
+    char s[16];
+    snprintf(s, 16, "%02hhX %02hhX %02hhX", data0, data1, data2);
+    DBG(s);
+}
+
+// Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
+void CynthiaAudioProcessor::render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffest)
+{
+    // need to implement once there is audio to output
 }
 
 //==============================================================================
