@@ -84,17 +84,25 @@ void CynthiaAudioProcessor::changeProgramName (int index, const juce::String& ne
 }
 
 //==============================================================================
+
+// a method for any pre-playback intialization
 void CynthiaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    synth.allocateResources(sampleRate, samplesPerBlock);
+    reset();
 }
 
 void CynthiaAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+    synth.deallocateResources();
+}
+
+// reset the audio processor's state upon any changes to the synth object
+void CynthiaAudioProcessor::reset()
+{
+    synth.reset();
 }
 
 // Called by the DAW to query the number of channels supported
@@ -189,9 +197,7 @@ void CynthiaAudioProcessor::splitBufferByEvents(juce::AudioBuffer<float>& buffer
 // Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 void CynthiaAudioProcessor::handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2) 
 {
-    char s[16];
-    snprintf(s, 16, "%02hhX %02hhX %02hhX", data0, data1, data2);
-    DBG(s);
+    synth.midiMessage(data0, data1, data2);
 }
 
 // Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
