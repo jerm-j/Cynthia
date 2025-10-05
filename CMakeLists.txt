@@ -24,7 +24,9 @@ juce_add_plugin(Cynthia
 target_sources(Cynthia
     PRIVATE
         ./Source/PluginEditor.cpp
-        ./Source/PluginProcessor.cpp)
+        ./Source/PluginProcessor.cpp
+        ./Source/Synth.cpp
+        ./Source/Voice.h)
 
 target_compile_definitions(Cynthia
     PUBLIC

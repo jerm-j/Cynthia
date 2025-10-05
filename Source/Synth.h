@@ -3,6 +3,8 @@
 
     The job of Synth is to produce the actual sound.
 
+    In this object, we will compose within it an oscillator object.
+
     Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 
 */

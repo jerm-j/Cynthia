@@ -92,10 +92,9 @@ void CynthiaAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     reset();
 }
 
+// when playback stops, you can use this method as an opportunity to free up any spare memory, etc.
 void CynthiaAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
     synth.deallocateResources();
 }
 
