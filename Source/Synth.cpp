@@ -25,11 +25,46 @@ void Synth::deallocateResources()
 void Synth::reset()
 {
     voice.reset();
+    //noiseGen.reset();
 }
 
 void Synth::render(float** outputBuffers, int sampleCount)
 {
-    // need to implement
+    float* outputBufferLeft = outputBuffers[0]; // write-pointer to the left channel
+    float* outputBufferRight = outputBuffers[1]; // write-pointer to the right channel 
+
+    // for each sample in the buffer
+    // note: if there were MIDI messages, there will be less samples to
+    // process than the total number of samples in the block
+    for(int sample = 0; sample < sampleCount; ++sample)
+    {
+        // get the next output from our noise generator
+        float noise = noiseGen.nextValue();
+
+        float output = 0.0f;
+        // if a key is pressed
+        if(voice.note > 0)
+        {
+            // calculate the new sample value
+            // expression explanation: signal * (a floating point value between 0 and 1) * 0.5f
+            // multiplying the output by 0.5 = a 6dB volument level reduction.
+            // voice.velocity will be a value between 0 and 127
+            output = noise * (voice.velocity / 127.0f) * 0.5f;
+        }
+
+        // write the output into the audio buffers.
+        // left and right channels always get the same values.
+        // but when the synth is in mono, the right channel will be nullptr, and we will
+        // only write to the left channel.
+        outputBufferLeft[sample] = output;
+        if(outputBufferRight != nullptr)
+        {
+            outputBufferRight[sample] = output;
+        }
+    }
+
+    protectYourEars(outputBufferLeft, sampleCount);
+    protectYourEars(outputBufferRight, sampleCount);
 }
 
 void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
@@ -49,11 +84,8 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     {
         // Note off
         case 0x80:
-        {
-            uint8_t note = data1 & 0x7F;
-            noteOff(note);
+            noteOff(data1 & 0x7F);
             break;
-        }
            
         // Note on
         case 0x90:
@@ -94,7 +126,7 @@ void Synth::noteOff(int note)
     */
     if(voice.note == note)
     {
-        voice.note = -1;
+        voice.note = 0;
         voice.velocity = 0;
     }
 }

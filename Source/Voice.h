@@ -26,7 +26,7 @@ struct Voice
     // reset the voice back to a "cleared" state
     void reset()
     {
-        note = -1;
+        note = 0;
         velocity = 0;
     }
 };

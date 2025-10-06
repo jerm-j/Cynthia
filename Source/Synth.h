@@ -11,8 +11,10 @@
 
 #pragma once
 
-#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_core/juce_core.h>
 #include "Voice.h"
+#include "NoiseGenerator.h"
+#include "Utils.h"
 
 class Synth
 {
@@ -39,4 +41,5 @@ class Synth
 
         float sampleRate;
         Voice voice;
+        NoiseGenerator noiseGen;
 };

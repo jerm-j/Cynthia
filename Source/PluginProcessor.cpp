@@ -132,8 +132,6 @@ bool CynthiaAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 void CynthiaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
-    juce::ignoreUnused (midiMessages);
-
     /* 
         Denormals are floating point numbers that are so small, they are practically 0.
         Denormals are slower than regular floating point numbers, so we treat them as 0.
@@ -196,13 +194,36 @@ void CynthiaAudioProcessor::splitBufferByEvents(juce::AudioBuffer<float>& buffer
 // Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 void CynthiaAudioProcessor::handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2) 
 {
+    // send the MIDI data to our Synth object to be turned into sound
     synth.midiMessage(data0, data1, data2);
 }
 
 // Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 void CynthiaAudioProcessor::render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffest)
 {
-    // need to implement once there is audio to output
+    /*
+        because of the midi handling logic we implemented
+        where we split the audio buffer upon a midi event, we now must find
+        the proper location in the audio output buffer to place our sample
+        based on the bufferOffset argument provided.
+
+        this is the meaning of the expression (buffer.getWritePointer(channel #) + bufferOffset)
+    */
+
+    // an array to hold two "audio buffers", one for left channel, and one for right channel
+    float* outputBuffers[2] = {nullptr, nullptr};
+    // fill the left channel with samples first (which is the default channel in mono)
+    outputBuffers[0] = buffer.getWritePointer(0) + bufferOffest;
+    // check if we're in stereo.
+    if(getTotalNumOutputChannels() > 1)
+    {   
+        // if we are, fill the right channel with samples as well.
+        outputBuffers[1] = buffer.getWritePointer(1) + bufferOffest;
+    }
+
+    // send the output buffer that is now filled with samples 
+    // for each channel (or only one, depending on bus configuration) to be rendered by the synth
+    synth.render(outputBuffers, sampleCount);
 }
 
 //==============================================================================
