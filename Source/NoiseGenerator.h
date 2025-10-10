@@ -1,6 +1,8 @@
 /*
     NoiseGenerator.h
 
+    Currently not used anywhere in this project.
+
     Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 */
 

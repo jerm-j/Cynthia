@@ -1,4 +1,14 @@
+/*
+    Utils.h
+
+    A place to store any utility functions to do quick math or DSP.
+
+    protectYourEars() source: "Creating Synthesizer Plugins Using C++ and JUCE" by Matthijs Hollemans
+*/
+
+
 #pragma once
+
 #include <cmath>
 #include <juce_core/juce_core.h>
 #include <cstring>

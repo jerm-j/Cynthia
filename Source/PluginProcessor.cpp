@@ -10,8 +10,9 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), synth(wavetable)
 {
+    createWaveTable();
 }
 
 CynthiaAudioProcessor::~CynthiaAudioProcessor()
@@ -198,32 +199,29 @@ void CynthiaAudioProcessor::handleMIDI(uint8_t data0, uint8_t data1, uint8_t dat
     synth.midiMessage(data0, data1, data2);
 }
 
-// Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
-void CynthiaAudioProcessor::render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffest)
+void CynthiaAudioProcessor::render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffset)
 {
-    /*
-        because of the midi handling logic we implemented
-        where we split the audio buffer upon a midi event, we now must find
-        the proper location in the audio output buffer to place our sample
-        based on the bufferOffset argument provided.
+    synth.render(buffer, sampleCount, bufferOffset);
+}
 
-        this is the meaning of the expression (buffer.getWritePointer(channel #) + bufferOffset)
-    */
+// Source: https://juce.com/tutorials/tutorial_wavetable_synth/
+// Currently, this function only generates a sine wave, and stores it into the wavetable.
+void CynthiaAudioProcessor::createWaveTable()
+{
+    const unsigned int tableSize = 1 << 7; // value of 128
+    wavetable.setSize(1, (int) tableSize);
 
-    // an array to hold two "audio buffers", one for left channel, and one for right channel
-    float* outputBuffers[2] = {nullptr, nullptr};
-    // fill the left channel with samples first (which is the default channel in mono)
-    outputBuffers[0] = buffer.getWritePointer(0) + bufferOffest;
-    // check if we're in stereo.
-    if(getTotalNumOutputChannels() > 1)
-    {   
-        // if we are, fill the right channel with samples as well.
-        outputBuffers[1] = buffer.getWritePointer(1) + bufferOffest;
+    auto* samples = wavetable.getWritePointer(0);
+
+    auto angleDelta = juce::MathConstants<double>::twoPi / (double) (tableSize - 1);
+    auto currentAngle = 0.0;
+
+    for(unsigned int i = 0; i < tableSize; ++i)
+    {
+        auto sample = std::sin(currentAngle);
+        samples[i] = (float) sample;
+        currentAngle += angleDelta;
     }
-
-    // send the output buffer that is now filled with samples 
-    // for each channel (or only one, depending on bus configuration) to be rendered by the synth
-    synth.render(outputBuffers, sampleCount);
 }
 
 //==============================================================================

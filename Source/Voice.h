@@ -10,23 +10,35 @@
 
     In polyphonic mode, there will be a Voice instance for every note that is playing.
 
-    Therefore, each note is associated with a voice, and vice a versa.
+    Therefore, each note is associated with a voice, and each voice has its own oscillator.
     
     Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 */
 
 #pragma once
 
+#include "WavetableOscillator.h"
+
 struct Voice
 {
-
     int note;
-    int velocity;
+    WavetableOscillator osc;
+
+    Voice(const juce::AudioBuffer<float>& wavetableToUse) 
+        : osc(wavetableToUse)
+    {
+    }
 
     // reset the voice back to a "cleared" state
     void reset()
     {
         note = 0;
-        velocity = 0;
+        osc.reset();
     }
+
+    float render()
+    {
+        return osc.getNextSample();
+    }
+
 };

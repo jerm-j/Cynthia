@@ -3,7 +3,7 @@
 
     The job of Synth is to produce the actual sound.
 
-    In this object, we will compose within it an oscillator object.
+    In this object, we will compose within it a Vpice object which manages the oscillator.
 
     Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 
@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <juce_core/juce_core.h>
 #include "Voice.h"
 #include "NoiseGenerator.h"
 #include "Utils.h"
@@ -19,8 +18,7 @@
 class Synth
 {
     public:
-        Synth();
-
+        Synth(const juce::AudioBuffer<float>& wavetableToUse);
         // called right before the host starts playing audio (analogous to prepareToPlay())
         void allocateResources(double sampleRate, int samplesPerBlock);
         // called right after the host has finished playing audio (analogous to releaseResources())
@@ -28,7 +26,8 @@ class Synth
         // reset the state of the synth
         void reset();
         // render the current block of audio
-        void render(float** outputBuffers, int sampleCount);
+        // void render(float** outputBuffers, int sampleCount);
+        void render(juce::AudioBuffer<float>& outputBuffers, int sampleCount, int bufferOffset);
         // handle any midi messages
         void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
 
@@ -41,5 +40,4 @@ class Synth
 
         float sampleRate;
         Voice voice;
-        NoiseGenerator noiseGen;
 };

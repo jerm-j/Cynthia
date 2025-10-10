@@ -26,7 +26,8 @@ target_sources(Cynthia
         ./Source/PluginEditor.cpp
         ./Source/PluginProcessor.cpp
         ./Source/Synth.cpp
-        ./Source/Voice.h)
+        ./Source/Voice.h
+        ./Source/WavetableOscillator.h)
 
 target_compile_definitions(Cynthia
     PUBLIC
