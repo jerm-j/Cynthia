@@ -15,13 +15,13 @@ class WavetableOscillator
 
 public:
     WavetableOscillator(const juce::AudioBuffer<float> &waveTableToUse)
-        : wavetable(waveTableToUse) /*, tableSize(wavetable.getNumSamples()-1), sampleRate(44100.0)*/
+        : wavetable(waveTableToUse)
     {
     }
 
     void prepareWavetable(float frequency, double sampleRate)
     {
-        auto tableSize = (float)wavetable.getNumSamples(); /*(float)tableSize/sampleRate;*/
+        auto tableSize = (float)wavetable.getNumSamples();
         tableDelta = frequency * tableSize / (float)sampleRate;
     }
 
@@ -56,5 +56,5 @@ public:
 private:
     const juce::AudioBuffer<float> &wavetable;
     float currentIndex = 0.0f; // current wavetable index
-    float tableDelta = 0.0f;   // phase increment(angle delta)                       
+    float tableDelta = 0.0f;   // phase increment(angle delta)
 };
