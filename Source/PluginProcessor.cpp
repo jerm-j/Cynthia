@@ -142,18 +142,18 @@ void CynthiaAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     */
     juce::ScopedNoDenormals noDenormals;
 
-    auto totalNumInputChannels = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // JUCE does not guarantee the AudioBuffer is already cleared, so we must clear it of potential garbage values.
-    // this is to prevent, in the worst case, screaming feedback!
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    {
-        buffer.clear(i, 0, buffer.getNumSamples());
-    }
+    /*
+        JUCE does not guarantee the AudioBuffer is already cleared.
+        So we must clear it of potential garbage values.
+        This is to prevent, in the worst case, screaming feedback!
+    */
+    
+    buffer.clear();
 
     splitBufferByEvents(buffer, midiMessages);
 }
+
+//==============================================================================
 
 // Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 void CynthiaAudioProcessor::splitBufferByEvents(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages)
