@@ -48,9 +48,6 @@ void Synth::render(juce::AudioBuffer<float>& outputBuffers, int sampleCount, int
             *outputBufferRight++ = output;
         }
     }
-
-    // protectYourEars(&outputBufferLeft, sampleCount);
-    // protectYourEars(&outputBufferRight, sampleCount);
 }
 
 void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
@@ -98,6 +95,7 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
 void Synth::noteOn(int note, int velocity)
 {
     voice.note = note;
+    voice.osc.amplitude = (velocity / 127.0f) * 0.5f;
     voice.osc.prepareWavetable(juce::MidiMessage::getMidiNoteInHertz(note), sampleRate);
 }
 

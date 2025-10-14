@@ -2,6 +2,7 @@
 
 
 #include "Synth.h"
+#include "WaveformGenerator.h"
 
 //==============================================================================
 class CynthiaAudioProcessor final : public juce::AudioProcessor

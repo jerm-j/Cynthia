@@ -23,11 +23,14 @@ juce_add_plugin(Cynthia
 
 target_sources(Cynthia
     PRIVATE
-        ./Source/PluginEditor.cpp
-        ./Source/PluginProcessor.cpp
-        ./Source/Synth.cpp
-        ./Source/Voice.h
-        ./Source/WavetableOscillator.h)
+        Source/PluginEditor.cpp
+        Source/PluginProcessor.cpp
+        Source/Synth.cpp
+        
+    PUBLIC
+        Source/Voice.h
+        Source/WavetableOscillator.h
+        Source/WaveformGenerator.h)
 
 target_compile_definitions(Cynthia
     PUBLIC

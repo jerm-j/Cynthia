@@ -211,17 +211,9 @@ void CynthiaAudioProcessor::createWaveTable()
     const unsigned int tableSize = 1 << 7; // value of 128
     wavetable.setSize(1, (int)tableSize);
 
-    auto *samples = wavetable.getWritePointer(0);
-
-    auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize - 1);
-    auto currentAngle = 0.0;
-
-    for (unsigned int i = 0; i < tableSize; ++i)
-    {
-        auto sample = std::sin(currentAngle);
-        samples[i] = (float)sample;
-        currentAngle += angleDelta;
-    }
+    // add switch case for different waveforms to populate wavetable
+    SineGenerator sineTable;
+    sineTable.fillWavetable(wavetable);
 }
 
 //==============================================================================
