@@ -206,6 +206,18 @@ void CynthiaAudioProcessor::render(juce::AudioBuffer<float> &buffer, int sampleC
 
 // Source: https://juce.com/tutorials/tutorial_wavetable_synth/
 // Currently, this function only generates a sine wave, and stores it into the wavetable.
+/*
+    A dilemma:
+
+        If we are going to have a dynamic wavetable, meaning that the user will be able
+        to select different waveforms to use on the fly (Sine, Saw, Tri..), is this
+        the best way to populate the wavetable? How will we repopulate the wavetable
+        with new samples during runtime? Where will this method be called from to repopulate it? Currently we're calling it from
+        this class's constructor, but that only works for a one time initialization. We don't want to call it from
+        prepareToPlay() either because it will be called too often and unnecessarily...
+
+        So where should I call the waveform update logic to update the wavetable during runtime?
+*/
 void CynthiaAudioProcessor::createWaveTable()
 {
     const unsigned int tableSize = 1 << 7; // value of 128

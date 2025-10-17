@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_audio_basics/juce_audio_basics.h>
 
 class WavetableOscillator
 {

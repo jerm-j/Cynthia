@@ -32,3 +32,11 @@ struct SineGenerator : public WaveformGenerator
         }
     }
 };
+
+// Sawtooth implementation
+
+// triangle generator
+
+// square generator
+
+// custom wave generator ?

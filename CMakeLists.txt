@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.22)
 
 project(CYNTHIA VERSION 0.0.1)
 
-add_subdirectory(JUCE)              
+# GoogleTest requires at least C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#################################### JUCE ####################################
+add_subdirectory(JUCE)     
 
 juce_add_plugin(Cynthia
     # VERSION ...                               # Set this if the plugin version is different to the project version
@@ -47,3 +52,47 @@ target_link_libraries(Cynthia
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+target_include_directories(Cynthia
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source
+)
+
+#################################### Google Test ####################################
+
+include(FetchContent)
+
+# Declares GoogleTest as a dependency
+FetchContent_Declare(googletest
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+# Declare the test binary to build
+add_executable(CynthiaTests
+  Tests/TestWaveformGenerators.cpp
+)
+
+# Link binary with necessary targets
+target_link_libraries(CynthiaTests
+    PRIVATE
+        juce::juce_audio_basics
+        gtest_main
+        Cynthia
+)
+
+# Tell CMake where to look for binary's include dependencies
+target_include_directories(CynthiaTests
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source
+)
+
+# Enable CMake to discover the tests included in the binary
+include(GoogleTest)
+gtest_discover_tests(CynthiaTests)
