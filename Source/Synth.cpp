@@ -30,26 +30,38 @@ void Synth::reset()
 
 void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int bufferOffset)
 {
-    if (voice.note > 0)
+    // this only renders the voice if the envelope is still active.
+    /*
+        For future me:
+            knowing when a voice is no longer used is important for polyphony
+            and voice management.
+
+            The voice stealing logic will look at which voices are not currently playing and it uses
+            the envelope's active state for this.
+    */
+
+    for (int sample = 0; sample < sampleCount; ++sample)
     {
-        for (int sample = 0; sample < sampleCount; ++sample)
+        /*
+            future polyphonic voice handling logic here
+
+            for each voice:
+                if voice.isActive():
+                    output += voice.render();
+        */
+        float output = 0.0f;
+
+        if (voice.env.isActive())
+            output = voice.render();
+
+        for (int channel = 0; channel < outputBuffers.getNumChannels(); ++channel)
         {
-            /*
-                future polyphonic voice handling logic here
-
-                for each voice:
-                    if voice.isActive():
-                        output += voice.render();
-            */
-
-            float output = voice.render();
-
-            for (int channel = 0; channel < outputBuffers.getNumChannels(); ++channel)
-            {
-                outputBuffers.addSample(channel, sample + bufferOffset, output);
-            }
+            outputBuffers.addSample(channel, sample + bufferOffset, output);
         }
     }
+
+    if (!voice.env.isActive())
+        voice.env.reset();
 }
 
 void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
@@ -96,27 +108,23 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
 
 void Synth::noteOn(int note, int velocity)
 {
+    Envelope &env = voice.env;
+    env.attackMultiplier = envAttack;
+    env.decayMultiplier = envDecay;
+    env.sustainLevel = envSustain;
+    env.releaseMultiplier = envRelease;
+    env.attack();
+
     voice.note = note;
-    voice.osc.amplitude = (velocity / 127.0f) * 0.5f;
+    voice.amplitude = (velocity / 127.0f) * 0.5f;
     auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
     voice.osc.prepareWavetable((float)frequency, sampleRate);
 }
 
 void Synth::noteOff(int note)
 {
-    /*
-        If voice.note is the same as the note of the key that was released,
-        we clear the voice's note and velocity fields.
-
-        0 means no note is playing.
-    */
-
-    /*
-        This logic is currently causing pops and clicks on noteOff.
-        Will need to implement an ADSR envelope to allow the sound ramp down smoothly.
-    */
     if (voice.note == note)
     {
-        voice.note = 0;
+        voice.release();
     }
 }

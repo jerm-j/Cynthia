@@ -18,12 +18,14 @@
 #pragma once
 
 #include "WavetableOscillator.h"
-
+#include "Envelope.h"
 
 struct Voice
 {
     int note;
     WavetableOscillator osc;
+    Envelope env;
+    float amplitude;
 
     Voice(const juce::AudioBuffer<float>& wavetableToUse) 
         : osc(wavetableToUse)
@@ -35,11 +37,25 @@ struct Voice
     {
         note = 0;
         osc.reset();
+        env.reset();
     }
 
     float render()
     {
-        return osc.getNextSample();
+        float sample = osc.getNextSample();
+        float envelope = env.nextValue();   
+        return sample * envelope * amplitude;
+        
+        /*
+            little trick for debugging the envelope:
+                just return the envelope and view the output through the oscilloscope
+        */
+        // return envelope;
+    }
+
+    void release()
+    {
+        env.release();
     }
 
 };

@@ -11,9 +11,11 @@
 struct WaveformGenerator
 {
     virtual ~WaveformGenerator() = default;
+    // perhaps make param arg "const" since its really only meant to be read-only
     virtual void fillWavetable(juce::AudioBuffer<float> &wavetable) = 0;
 };
 
+// refactor this
 // Sine implementation
 struct SineGenerator : public WaveformGenerator
 {
@@ -21,7 +23,7 @@ struct SineGenerator : public WaveformGenerator
     {
         auto *samples = wavetable.getWritePointer(0);
         auto tableSize = wavetable.getNumSamples();
-        auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize - 1);
+        auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize) /*(double)(tableSize-1) which is better?*/;
         auto currentAngle = 0.0;
 
         for (unsigned int i = 0; i < tableSize; ++i)
@@ -34,9 +36,51 @@ struct SineGenerator : public WaveformGenerator
 };
 
 // Sawtooth implementation
+struct SawtoothGenerator : public WaveformGenerator
+{
+    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    {
+        auto *samples = wavetable.getWritePointer(0);
+        auto tableSize = wavetable.getNumSamples();
+        
+        for(unsigned int i = 0; i < tableSize; ++i)
+        {
+            float t = static_cast<float>(i) / tableSize;
+            samples[i] = 2.0f * t - 1.0f;
+        }
+    }
+};
 
-// triangle generator
+// Triangle implementation
+struct TriangleGenerator : public WaveformGenerator
+{
+    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    {
+        auto *samples = wavetable.getWritePointer(0);
+        auto tableSize = wavetable.getNumSamples();
 
-// square generator
+        for(unsigned int i = 0; i < tableSize; ++i)
+        {
+            float t = static_cast<float>(i) / tableSize;
+            samples[i] = 4.0f*abs(t-0.5f)-1.0f;
+        }
+    }
+};
+
+// Square implementation
+struct SquareGenerator : public WaveformGenerator
+{
+    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    {
+        auto *samples = wavetable.getWritePointer(0);
+        auto tableSize = wavetable.getNumSamples();
+
+        for(unsigned int i = 0; i < tableSize; ++i)
+        {
+            float t = static_cast<float>(i)/tableSize;
+            samples[i] = t < 0.5f ? 1.0f : -1.0f;
+        }
+    }
+};
 
 // custom wave generator ?

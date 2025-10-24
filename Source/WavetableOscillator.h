@@ -15,8 +15,6 @@ class WavetableOscillator
 
 public:
 
-    float amplitude;
-
     WavetableOscillator(const juce::AudioBuffer<float> &waveTableToUse)
         : wavetable(waveTableToUse)
     {
@@ -53,7 +51,7 @@ public:
         if ((currentIndex += tableDelta) >= (float) tableSize)
             currentIndex -= (float) tableSize;
 
-        return currentSample * amplitude;
+        return currentSample;
     }
 
 private:
