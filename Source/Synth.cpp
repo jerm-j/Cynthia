@@ -6,8 +6,7 @@
 
 #include "Synth.h"
 
-Synth::Synth(const juce::AudioBuffer<float> &wavetableToUse)
-    : voice(wavetableToUse)
+Synth::Synth()
 {
     sampleRate = 44100.0f;
 }
@@ -25,7 +24,8 @@ void Synth::deallocateResources()
 // reset the synth's voice back to a "cleared" state
 void Synth::reset()
 {
-    voice.reset();
+    for (Voice &voice : voices)
+        voice.reset();
 }
 
 void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int bufferOffset)
@@ -42,17 +42,13 @@ void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int
 
     for (int sample = 0; sample < sampleCount; ++sample)
     {
-        /*
-            future polyphonic voice handling logic here
-
-            for each voice:
-                if voice.isActive():
-                    output += voice.render();
-        */
         float output = 0.0f;
 
-        if (voice.env.isActive())
-            output = voice.render();
+        for (Voice &voice : voices)
+        {
+            if (voice.env.isActive())
+                output += voice.render();
+        }
 
         for (int channel = 0; channel < outputBuffers.getNumChannels(); ++channel)
         {
@@ -60,8 +56,11 @@ void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int
         }
     }
 
-    if (!voice.env.isActive())
-        voice.env.reset();
+    for (Voice &voice : voices)
+    {
+        if (!voice.env.isActive())
+            voice.env.reset();
+    }
 }
 
 void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
@@ -106,25 +105,66 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     }
 }
 
-void Synth::noteOn(int note, int velocity)
+void Synth::setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
 {
+    for (Voice &voice : voices)
+        voice.setWaveTable(wt);
+}
+
+int Synth::findFreeVoice() const
+{
+    int freeVoiceIndex = 0;
+    float refLevel = 100.0f; // louder than any envelope
+
+    for (int voiceIndex = 0; voiceIndex < MAX_VOICES; ++voiceIndex)
+    {
+        if (voices[voiceIndex].env.level < refLevel && !voices[voiceIndex].env.isInAttack())
+        {
+            refLevel = voices[voiceIndex].env.level;
+            freeVoiceIndex = voiceIndex;
+        }
+    }
+
+    return freeVoiceIndex;
+}
+
+void Synth::startVoice(int voiceIndex, int note, int velocity)
+{
+    Voice &voice = voices[voiceIndex];
+
+    voice.note = note;
+    voice.amplitude = (velocity / 127.0f) * outputGain;
+    auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
+    voice.osc.prepareWavetable((float)frequency, sampleRate);
+
     Envelope &env = voice.env;
     env.attackMultiplier = envAttack;
     env.decayMultiplier = envDecay;
     env.sustainLevel = envSustain;
     env.releaseMultiplier = envRelease;
     env.attack();
+}
 
-    voice.note = note;
-    voice.amplitude = (velocity / 127.0f) * 0.5f;
-    auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
-    voice.osc.prepareWavetable((float)frequency, sampleRate);
+void Synth::noteOn(int note, int velocity)
+{
+    int freeVoiceIndex = 0; // voice index 0 = mono voice
+
+    if (numVoices > 1) // polyphony activated
+    {
+        freeVoiceIndex = findFreeVoice();
+    }
+
+    startVoice(freeVoiceIndex, note, velocity);
 }
 
 void Synth::noteOff(int note)
 {
-    if (voice.note == note)
+    for (Voice &voice : voices)
     {
-        voice.release();
+        if (voice.note == note)
+        {
+            voice.release();
+            voice.note = 0;
+        }
     }
 }

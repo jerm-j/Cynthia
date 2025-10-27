@@ -15,14 +15,12 @@ class WavetableOscillator
 
 public:
 
-    WavetableOscillator(const juce::AudioBuffer<float> &waveTableToUse)
-        : wavetable(waveTableToUse)
-    {
-    }
+    WavetableOscillator()
+    {}
 
     void prepareWavetable(float frequency, double sampleRate)
     {
-        auto tableSize = (float)wavetable.getNumSamples();
+        auto tableSize = (float)wavetable->getNumSamples();
         tableDelta = frequency * tableSize / (float)sampleRate;
     }
 
@@ -35,14 +33,14 @@ public:
     // where the interpolation between wavetables occurs
     forcedinline float getNextSample() noexcept
     {
-        auto tableSize = (unsigned int) wavetable.getNumSamples();
+        auto tableSize = (unsigned int) wavetable->getNumSamples();
 
         auto index0 = (unsigned int) currentIndex;
         auto index1 = index0 == (tableSize - 1) ? (unsigned int) 0 : index0 + 1;
 
         auto frac = currentIndex - (float) index0;
 
-        auto *table = wavetable.getReadPointer(0);
+        auto *table = wavetable->getReadPointer(0);
 
         auto value0 = table[index0];
         auto value1 = table[index1];
@@ -54,8 +52,14 @@ public:
         return currentSample;
     }
 
+    // dynamically set the wavetable being used
+    void setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
+    {
+        wavetable = wt;
+    }
+
 private:
-    const juce::AudioBuffer<float> &wavetable;
+    std::shared_ptr<juce::AudioBuffer<float>> wavetable;
     float currentIndex = 0.0f; // current wavetable index
     float tableDelta = 0.0f;   // phase increment(angle delta)
 };

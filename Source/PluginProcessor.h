@@ -14,10 +14,12 @@ namespace ParameterID
 {
     #define PARAMETER_ID(str) const juce::ParameterID str(#str, 1);
         PARAMETER_ID(wavetype)
+        PARAMETER_ID(polyMode)
         PARAMETER_ID(envAttack)
         PARAMETER_ID(envDecay)
         PARAMETER_ID(envSustain)
         PARAMETER_ID(envRelease)
+        PARAMETER_ID(outputGain)
     #undef PARAMETER_ID
 }
 
@@ -70,7 +72,7 @@ private:
     void splitBufferByEvents(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages);
     void handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2);
     void render(juce::AudioBuffer<float> &buffer, int sampleCount, int bufferOffset);
-    void createWaveTable(); // called only once at initilization
+    void createWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt); // called only once at initilization
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     void valueTreePropertyChanged(juce::ValueTree&, const juce::Identifier&) override
@@ -79,12 +81,15 @@ private:
     }
 
     std::atomic<bool> parametersChanged { false };
+    std::atomic<int> currentWavetypeIndex { 0 };
 
     void update();
+    void updatePolyMode();
+    void updateADSR();
     void updateWavetable();
-
+    
     Synth synth;
-    juce::AudioBuffer<float> wavetable;
+    std::shared_ptr<juce::AudioBuffer<float>> wavetable;
 
     /*
         Note that these param variables are pointers.
@@ -92,11 +97,12 @@ private:
         Meaning we will need to initialize them in the constructor.
     */
     juce::AudioParameterChoice* wavetypeParam;
-
+    juce::AudioParameterChoice* polyModeParam;
     juce::AudioParameterFloat* envAttackParam;
     juce::AudioParameterFloat* envDecayParam;
     juce::AudioParameterFloat* envSustainParam;
     juce::AudioParameterFloat* envReleaseParam;
+    juce::AudioParameterFloat* outputGainParam;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CynthiaAudioProcessor)

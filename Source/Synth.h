@@ -17,7 +17,7 @@
 class Synth
 {
     public:
-        Synth(const juce::AudioBuffer<float>& wavetableToUse);
+        Synth();
         // called right before the host starts playing audio (analogous to prepareToPlay())
         void allocateResources(double sampleRate, int samplesPerBlock);
         // called right after the host has finished playing audio (analogous to releaseResources())
@@ -30,12 +30,26 @@ class Synth
         // handle any midi messages
         void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
 
+        // dynamically set the wavetable being used
+        void setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt);
+        
+        float outputGain;
+
         float envAttack;
         float envDecay;
         float envSustain;
         float envRelease;
-        
+
+        static constexpr int MAX_VOICES = 8;
+        int numVoices;
+
     private:
+
+        // handle the triggering of a voice
+        void startVoice(int voiceIndex, int note, int velocity);
+
+        // part of the voice stealing logic
+        int findFreeVoice() const;
 
         // handle a Note on event
         void noteOn(int note, int velocity);
@@ -43,5 +57,8 @@ class Synth
         void noteOff(int note);
 
         float sampleRate;
-        Voice voice;
+
+        // this allocates room for all 8 voices. In monophonic mode, the synth
+        // will only use the first object: voices[0]
+        std::array<Voice, MAX_VOICES> voices;
 };

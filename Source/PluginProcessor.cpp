@@ -10,18 +10,19 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
 #endif
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-                         ),
-      synth(wavetable)
+      )
 {
-    createWaveTable();
-    // wavetypeParam = dynamic_cast<juce::AudioParameterChoice*>(
-    //     apvts.getParameter(ParameterID::wavetype.getParamID())
-    // );
+    wavetable = std::make_shared<juce::AudioBuffer<float>>(1, 128);
+    createWaveTable(wavetable);
+    synth.setWaveTable(wavetable);
+
     castParameter(apvts, ParameterID::wavetype, wavetypeParam);
+    castParameter(apvts, ParameterID::polyMode, polyModeParam);
     castParameter(apvts, ParameterID::envAttack, envAttackParam);
     castParameter(apvts, ParameterID::envDecay, envDecayParam);
     castParameter(apvts, ParameterID::envSustain, envSustainParam);
     castParameter(apvts, ParameterID::envRelease, envReleaseParam);
+    castParameter(apvts, ParameterID::outputGain, outputGainParam);
 
     apvts.state.addListener(this);
 }
@@ -30,73 +31,6 @@ CynthiaAudioProcessor::~CynthiaAudioProcessor()
 {
     apvts.state.removeListener(this);
 }
-
-//==============================================================================
-const juce::String CynthiaAudioProcessor::getName() const
-{
-    return JucePlugin_Name;
-}
-
-bool CynthiaAudioProcessor::acceptsMidi() const
-{
-#if JucePlugin_WantsMidiInput
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool CynthiaAudioProcessor::producesMidi() const
-{
-#if JucePlugin_ProducesMidiOutput
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool CynthiaAudioProcessor::isMidiEffect() const
-{
-#if JucePlugin_IsMidiEffect
-    return true;
-#else
-    return false;
-#endif
-}
-
-double CynthiaAudioProcessor::getTailLengthSeconds() const
-{
-    return 0.0;
-}
-
-int CynthiaAudioProcessor::getNumPrograms()
-{
-    return 1; // NB: some hosts don't cope very well if you tell them there are 0 programs,
-              // so this should be at least 1, even if you're not really implementing programs.
-}
-
-int CynthiaAudioProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void CynthiaAudioProcessor::setCurrentProgram(int index)
-{
-    juce::ignoreUnused(index);
-}
-
-const juce::String CynthiaAudioProcessor::getProgramName(int index)
-{
-    juce::ignoreUnused(index);
-    return {};
-}
-
-void CynthiaAudioProcessor::changeProgramName(int index, const juce::String &newName)
-{
-    juce::ignoreUnused(index, newName);
-}
-
-//==============================================================================
 
 // a method for any pre-playback intialization
 void CynthiaAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -118,30 +52,6 @@ void CynthiaAudioProcessor::reset()
     synth.reset();
 }
 
-// Called by the DAW to query the number of channels supported
-bool CynthiaAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
-{
-#if JucePlugin_IsMidiEffect
-    juce::ignoreUnused(layouts);
-    return true;
-#else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
-        return false;
-
-    // This checks if the input layout matches the output layout
-#if !JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
-        return false;
-#endif
-
-    return true;
-#endif
-}
-
 void CynthiaAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                          juce::MidiBuffer &midiMessages)
 {
@@ -159,14 +69,15 @@ void CynthiaAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
         So we must clear it of potential garbage values.
         This is to prevent, in the worst case, screaming feedback!
     */
-    
+
     buffer.clear();
 
     bool expected = true;
     // this line does a thread-safe check to see if parametersChanged is true.
     // if so, it calls the update method to perform parameter recalculation
     // then immediately sets parametersChanged back to false
-    if(parametersChanged.compare_exchange_strong(expected, false)) update();
+    if (parametersChanged.compare_exchange_strong(expected, false))
+        update();
 
     splitBufferByEvents(buffer, midiMessages);
 }
@@ -236,7 +147,7 @@ void CynthiaAudioProcessor::render(juce::AudioBuffer<float> &buffer, int sampleC
 
         So where should I call the waveform update logic to update the wavetable during runtime?
 
-    Update: 
+    Update:
 
         This function is fine for initialization. The default wavetype is sine, so we will initialize
         the wavetable to be filled with samples of one period of a sine wave.
@@ -245,13 +156,11 @@ void CynthiaAudioProcessor::render(juce::AudioBuffer<float> &buffer, int sampleC
         read any changes in the UI, and refill the wavetable with samples of the new wavetype.
 
         */
-void CynthiaAudioProcessor::createWaveTable()
+void CynthiaAudioProcessor::createWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
 {
-    const unsigned int tableSize = 1 << 7; // value of 128
-    wavetable.setSize(1, (int)tableSize);
-
     SineGenerator sineTable;
-    sineTable.fillWavetable(wavetable);
+    sineTable.fillWavetable(*wt);
+    synth.setWaveTable(wt);
 }
 
 // inside this method we will instantiate all the parameter objects
@@ -260,14 +169,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
     // a helper object used to construct the APVTS
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    // the ParameterLayout assumes ownership of the AudioParameter object, which is why 
+    // the ParameterLayout assumes ownership of the AudioParameter object, which is why
     // the parameter is constructed using std::make_unique
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetype, // the identifier
-        "Wavetype", // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray {"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        0 // the default choice (Sine)
-    ));
+        ParameterID::wavetype,                                       // the identifier
+        "Wavetype",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
+        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
+        0                                                            // the default choice (Sine)
+        ));
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        ParameterID::polyMode,                         // the identifier
+        "Polyphony Mode",                              // human readable name of the parameter (this is what the DAW shows to the user)
+        juce::StringArray{"Monophonic", "Polyphonic"}, // the list of wavetypes to choose from
+        0                                              // the default choice (Sine)
+        ));
 
     /*
         Note on Envelope ADSR params:
@@ -285,95 +201,216 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
         "Env Attack",
         juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
         0.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")
-    ));
+        juce::AudioParameterFloatAttributes().withLabel("%")));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         ParameterID::envDecay,
         "Env Decay",
         juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
         50.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")
-    ));
+        juce::AudioParameterFloatAttributes().withLabel("%")));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         ParameterID::envSustain,
         "Env Sustain",
         juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
         100.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")
-    ));
+        juce::AudioParameterFloatAttributes().withLabel("%")));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         ParameterID::envRelease,
         "Env Release",
         juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
         30.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")
-    ));
+        juce::AudioParameterFloatAttributes().withLabel("%")));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::outputGain,
+        "Output Gain",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.1),
+        0.5f,
+        juce::AudioParameterFloatAttributes()));
 
     return layout;
 }
 
 void CynthiaAudioProcessor::update()
 {
+    synth.outputGain = outputGainParam->get();
+    
+    updatePolyMode();
+
+    updateADSR();
+
+    if (wavetypeParam->getIndex() != currentWavetypeIndex)
+    {
+        updateWavetable();
+    }
+}
+
+void CynthiaAudioProcessor::updatePolyMode()
+{
+    synth.numVoices = (polyModeParam->getIndex() == 0) ? 1 : Synth::MAX_VOICES;
+}
+
+void CynthiaAudioProcessor::updateADSR()
+{
     float sampleRate = float(getSampleRate());
     float inverseSampleRate = 1.0f / sampleRate;
 
-    synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f-0.075f * envAttackParam->get()));
-    synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f-0.075f * envDecayParam->get()));
+    synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envAttackParam->get()));
+    synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envDecayParam->get()));
     synth.envSustain = envSustainParam->get() / 100.0f;
 
     float envRelease = envReleaseParam->get();
-    if(envRelease < 1.0f)
+    if (envRelease < 1.0f)
     {
         synth.envRelease = 0.075f; // extra fast release
     }
     else
     {
-        synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f-0.075f * envRelease));
+        synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
     }
-    
-    // =======================================================
+}
 
-    switch(wavetypeParam->getIndex())
+void CynthiaAudioProcessor::updateWavetable()
+{
+    currentWavetypeIndex.store(wavetypeParam->getIndex());
+
+    auto newWaveTable = std::make_shared<juce::AudioBuffer<float>>(1, 128);
+
+    switch (wavetypeParam->getIndex())
     {
-        case 0:
-        {
-            wavetable.clear();
-            SineGenerator sine;
-            sine.fillWavetable(wavetable);
-            break;
-        }
-            
-        case 1:
-        {
-            wavetable.clear();
-            SawtoothGenerator sawtooth;
-            sawtooth.fillWavetable(wavetable);
-            break;
-        }
-            
-        case 2:
-        {
-            wavetable.clear();
-            TriangleGenerator triangle;
-            triangle.fillWavetable(wavetable);
-            break;
-        }
-            
-        case 3:
-        {
-            wavetable.clear();
-            SquareGenerator square;
-            square.fillWavetable(wavetable);
-            break;
-        }
-
-        default:
-            break;
-            
+    case 0:
+    {
+        SineGenerator sine;
+        sine.fillWavetable(*newWaveTable);
+        wavetable = newWaveTable;
+        synth.setWaveTable(wavetable);
+        break;
     }
+
+    case 1:
+    {
+        SawtoothGenerator sawtooth;
+        sawtooth.fillWavetable(*newWaveTable);
+        wavetable = newWaveTable;
+        synth.setWaveTable(wavetable);
+        break;
+    }
+
+    case 2:
+    {
+        TriangleGenerator triangle;
+        triangle.fillWavetable(*newWaveTable);
+        wavetable = newWaveTable;
+        synth.setWaveTable(wavetable);
+        break;
+    }
+
+    case 3:
+    {
+        SquareGenerator square;
+        square.fillWavetable(*newWaveTable);
+        wavetable = newWaveTable;
+        synth.setWaveTable(wavetable);
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+//==============================================================================
+const juce::String CynthiaAudioProcessor::getName() const
+{
+    return JucePlugin_Name;
+}
+
+bool CynthiaAudioProcessor::acceptsMidi() const
+{
+#if JucePlugin_WantsMidiInput
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool CynthiaAudioProcessor::producesMidi() const
+{
+#if JucePlugin_ProducesMidiOutput
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool CynthiaAudioProcessor::isMidiEffect() const
+{
+#if JucePlugin_IsMidiEffect
+    return true;
+#else
+    return false;
+#endif
+}
+
+double CynthiaAudioProcessor::getTailLengthSeconds() const
+{
+    return 0.0;
+}
+
+int CynthiaAudioProcessor::getNumPrograms()
+{
+    return 1; // NB: some hosts don't cope very well if you tell them there are 0 programs,
+              // so this should be at least 1, even if you're not really implementing programs.
+}
+
+int CynthiaAudioProcessor::getCurrentProgram()
+{
+    return 0;
+}
+
+void CynthiaAudioProcessor::setCurrentProgram(int index)
+{
+    juce::ignoreUnused(index);
+}
+
+const juce::String CynthiaAudioProcessor::getProgramName(int index)
+{
+    juce::ignoreUnused(index);
+    return {};
+}
+
+void CynthiaAudioProcessor::changeProgramName(int index, const juce::String &newName)
+{
+    juce::ignoreUnused(index, newName);
+}
+
+//==============================================================================
+
+// Called by the DAW to query the number of channels supported
+bool CynthiaAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
+{
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
+    return true;
+#else
+    // This is the place where you check if the layout is supported.
+    // In this template code we only support mono or stereo.
+    // Some plugin hosts, such as certain GarageBand versions, will only
+    // load plugins that support stereo bus layouts.
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        return false;
+
+    // This checks if the input layout matches the output layout
+#if !JucePlugin_IsSynth
+    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+        return false;
+#endif
+
+    return true;
+#endif
 }
 
 //==============================================================================

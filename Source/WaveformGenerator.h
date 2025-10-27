@@ -12,14 +12,14 @@ struct WaveformGenerator
 {
     virtual ~WaveformGenerator() = default;
     // perhaps make param arg "const" since its really only meant to be read-only
-    virtual void fillWavetable(juce::AudioBuffer<float> &wavetable) = 0;
+    virtual void fillWavetable(juce::AudioBuffer<float>& wt) = 0;
 };
 
 // refactor this
 // Sine implementation
 struct SineGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
     {
         auto *samples = wavetable.getWritePointer(0);
         auto tableSize = wavetable.getNumSamples();
@@ -38,7 +38,7 @@ struct SineGenerator : public WaveformGenerator
 // Sawtooth implementation
 struct SawtoothGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
     {
         auto *samples = wavetable.getWritePointer(0);
         auto tableSize = wavetable.getNumSamples();
@@ -54,7 +54,7 @@ struct SawtoothGenerator : public WaveformGenerator
 // Triangle implementation
 struct TriangleGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
     {
         auto *samples = wavetable.getWritePointer(0);
         auto tableSize = wavetable.getNumSamples();
@@ -70,7 +70,7 @@ struct TriangleGenerator : public WaveformGenerator
 // Square implementation
 struct SquareGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float> &wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
     {
         auto *samples = wavetable.getWritePointer(0);
         auto tableSize = wavetable.getNumSamples();

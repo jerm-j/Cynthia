@@ -27,10 +27,7 @@ struct Voice
     Envelope env;
     float amplitude;
 
-    Voice(const juce::AudioBuffer<float>& wavetableToUse) 
-        : osc(wavetableToUse)
-    {
-    }
+    Voice() {}
 
     // reset the voice back to a "cleared" state
     void reset()
@@ -56,6 +53,12 @@ struct Voice
     void release()
     {
         env.release();
+    }
+
+    // dynamically set the wavetable being used
+    void setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
+    {
+        osc.setWaveTable(wt);
     }
 
 };
