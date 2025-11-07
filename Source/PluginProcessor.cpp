@@ -134,28 +134,6 @@ void CynthiaAudioProcessor::render(juce::AudioBuffer<float> &buffer, int sampleC
 }
 
 // Source: https://juce.com/tutorials/tutorial_wavetable_synth/
-// Currently, this function only generates a sine wave, and stores it into the wavetable.
-/*
-    A dilemma:
-
-        If we are going to have a dynamic wavetable, meaning that the user will be able
-        to select different waveforms to use on the fly (Sine, Saw, Tri..), is this
-        the best way to populate the wavetable? How will we repopulate the wavetable
-        with new samples during runtime? Where will this method be called from to repopulate it? Currently we're calling it from
-        this class's constructor, but that only works for a one time initialization. We don't want to call it from
-        prepareToPlay() either because it will be called too often and unnecessarily...
-
-        So where should I call the waveform update logic to update the wavetable during runtime?
-
-    Update:
-
-        This function is fine for initialization. The default wavetype is sine, so we will initialize
-        the wavetable to be filled with samples of one period of a sine wave.
-
-        But for dynamic reinitilization at runtime, we will need an updateWavetable() method that will
-        read any changes in the UI, and refill the wavetable with samples of the new wavetype.
-
-        */
 void CynthiaAudioProcessor::createWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
 {
     SineGenerator sineTable;
@@ -421,11 +399,11 @@ bool CynthiaAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor *CynthiaAudioProcessor::createEditor()
 {
-    // return new CynthiaAudioProcessorEditor(*this);
+    return new CynthiaAudioProcessorEditor(*this);
 
-    auto genericEditor = new juce::GenericAudioProcessorEditor(*this);
-    genericEditor->setSize(500, 200);
-    return genericEditor;
+    // auto genericEditor = new juce::GenericAudioProcessorEditor(*this);
+    // genericEditor->setSize(500, 200);
+    // return genericEditor;
 }
 
 //==============================================================================

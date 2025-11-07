@@ -1,27 +1,9 @@
 #pragma once
-
-#include <juce_audio_processors/juce_audio_processors.h>
 #include "Synth.h"
 #include "WaveformGenerator.h"
 #include "Utils.h"
 
-/*
-    Here we create a new namespace which contains juce::ParameterID objects for each parameter definition.
-    To get the identifier of a parameter, we can just write "ParameterID::paramID".
-    The actual string value is just "paramID".
-*/
-namespace ParameterID
-{
-    #define PARAMETER_ID(str) const juce::ParameterID str(#str, 1);
-        PARAMETER_ID(wavetype)
-        PARAMETER_ID(polyMode)
-        PARAMETER_ID(envAttack)
-        PARAMETER_ID(envDecay)
-        PARAMETER_ID(envSustain)
-        PARAMETER_ID(envRelease)
-        PARAMETER_ID(outputGain)
-    #undef PARAMETER_ID
-}
+
 
 //==============================================================================
 class CynthiaAudioProcessor final : public juce::AudioProcessor, 
