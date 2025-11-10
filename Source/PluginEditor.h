@@ -2,6 +2,7 @@
 
 #include "PluginProcessor.h"
 #include "ADSRComponent.h"
+#include "FilterComponent.h"
 
 //==============================================================================
 class CynthiaAudioProcessorEditor final : public juce::AudioProcessorEditor
@@ -19,6 +20,7 @@ private:
     // access the processor object that created it.
     CynthiaAudioProcessor& processorRef;
     ADSRComponent adsrUI;
+    FilterComponent filterUI;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CynthiaAudioProcessorEditor)
 };

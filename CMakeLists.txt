@@ -32,6 +32,7 @@ target_sources(Cynthia
         Source/PluginProcessor.cpp
         Source/Synth.cpp
         Source/ADSRComponent.cpp
+        Source/FilterComponent.cpp
         
     PUBLIC
         Source/Voice.h
@@ -39,6 +40,7 @@ target_sources(Cynthia
         Source/WaveformGenerator.h
         Source/Envelope.h
         Source/Utils.h
+        Source/Filter.h
         )
 
 target_compile_definitions(Cynthia
@@ -52,6 +54,7 @@ target_link_libraries(Cynthia
     PRIVATE
         # AudioPluginData           # If we'd created a binary data target, we'd link to it here
         juce::juce_core
+        juce::juce_dsp
         juce::juce_data_structures
         juce::juce_events
         juce::juce_graphics

@@ -19,15 +19,18 @@
 
 #include "WavetableOscillator.h"
 #include "Envelope.h"
+#include "Filter.h"
 
 struct Voice
 {
     int note;
     WavetableOscillator osc;
     Envelope env;
+    SVFFilter filter;
     float amplitude;
 
-    Voice() {}
+    Voice() 
+    {}
 
     // reset the voice back to a "cleared" state
     void reset()
@@ -35,13 +38,15 @@ struct Voice
         note = 0;
         osc.reset();
         env.reset();
+        filter.reset();
     }
 
     float render()
     {
         float sample = osc.getNextSample();
         float envelope = env.nextValue();   
-        return sample * envelope * amplitude;
+        float filtered_sample = filter.processSample(sample);
+        return filtered_sample * envelope * amplitude;
         
         /*
             little trick for debugging the envelope:

@@ -13,6 +13,7 @@
 
 #include "Voice.h"
 #include "NoiseGenerator.h"
+#include "Utils.h"
 
 class Synth
 {
@@ -39,6 +40,10 @@ class Synth
         float envDecay;
         float envSustain;
         float envRelease;
+
+        int filterType;
+        float filterCutoff;
+        float filterResonance;
 
         static constexpr int MAX_VOICES = 8;
         int numVoices;

@@ -22,6 +22,9 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
     castParameter(apvts, ParameterID::envDecay, envDecayParam);
     castParameter(apvts, ParameterID::envSustain, envSustainParam);
     castParameter(apvts, ParameterID::envRelease, envReleaseParam);
+    castParameter(apvts, ParameterID::filterType, filterTypeParam);
+    castParameter(apvts, ParameterID::filterCutoff, filterCutoffParam);
+    castParameter(apvts, ParameterID::filterResonance, filterResonanceParam);
     castParameter(apvts, ParameterID::outputGain, outputGainParam);
 
     apvts.state.addListener(this);
@@ -153,15 +156,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
         ParameterID::wavetype,                                       // the identifier
         "Wavetype",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
         juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        0                                                            // the default choice (Sine)
-        ));
+        0));                                                         // the default choice (Sine)
+        
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         ParameterID::polyMode,                         // the identifier
         "Polyphony Mode",                              // human readable name of the parameter (this is what the DAW shows to the user)
         juce::StringArray{"Monophonic", "Polyphonic"}, // the list of wavetypes to choose from
-        0                                              // the default choice (Sine)
-        ));
+        0));                                           // the default choice (Sine)
 
     /*
         Note on Envelope ADSR params:
@@ -202,6 +204,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
         30.0f,
         juce::AudioParameterFloatAttributes().withLabel("%")));
 
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        ParameterID::filterType,
+        "Filter Type",
+        juce::StringArray{"LowPass", "HighPass", "BandPass"},
+        0));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::filterCutoff,
+        "Filter Cutoff",
+        juce::NormalisableRange<float>(1.0f, 20000.0f, 1.0f),
+        10000.0f,
+        juce::AudioParameterFloatAttributes().withLabel("Hz")));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::filterResonance,
+        "Filter Resonance",
+        juce::NormalisableRange<float>(0.01f, 1.0f, 0.01f),
+        0.5f,
+        juce::AudioParameterFloatAttributes().withLabel("Q")));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         ParameterID::outputGain,
         "Output Gain",
@@ -218,6 +240,8 @@ void CynthiaAudioProcessor::update()
     
     updatePolyMode();
 
+    updateFilter();
+
     updateADSR();
 
     if (wavetypeParam->getIndex() != currentWavetypeIndex)
@@ -229,6 +253,13 @@ void CynthiaAudioProcessor::update()
 void CynthiaAudioProcessor::updatePolyMode()
 {
     synth.numVoices = (polyModeParam->getIndex() == 0) ? 1 : Synth::MAX_VOICES;
+}
+
+void CynthiaAudioProcessor::updateFilter()
+{
+    synth.filterType = filterTypeParam->getIndex();
+    synth.filterCutoff = filterCutoffParam->get();
+    synth.filterResonance = filterResonanceParam->get();
 }
 
 void CynthiaAudioProcessor::updateADSR()

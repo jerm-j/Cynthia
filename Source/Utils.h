@@ -27,6 +27,9 @@ namespace ParameterID
         PARAMETER_ID(envDecay)
         PARAMETER_ID(envSustain)
         PARAMETER_ID(envRelease)
+        PARAMETER_ID(filterType)
+        PARAMETER_ID(filterCutoff)
+        PARAMETER_ID(filterResonance)
         PARAMETER_ID(outputGain)
     #undef PARAMETER_ID
 }

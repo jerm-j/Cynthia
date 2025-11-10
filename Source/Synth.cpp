@@ -137,6 +137,11 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
     voice.osc.prepareWavetable((float)frequency, sampleRate);
 
+    voice.filter.prepare(sampleRate);
+    voice.filter.setCutoff(filterCutoff);
+    voice.filter.setResonance(filterResonance);
+    voice.filter.setMode(filterType);
+
     Envelope &env = voice.env;
     env.attackMultiplier = envAttack;
     env.decayMultiplier = envDecay;

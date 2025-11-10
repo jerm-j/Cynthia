@@ -3,10 +3,11 @@
 
 //==============================================================================
 CynthiaAudioProcessorEditor::CynthiaAudioProcessorEditor (CynthiaAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), adsrUI(p.apvts)
+    : AudioProcessorEditor (&p), processorRef (p), adsrUI(p.apvts), filterUI(p.apvts)
 {
     addAndMakeVisible(adsrUI);
-    setSize(400, 200);
+    addAndMakeVisible(filterUI);
+    setSize(600, 600);
 }
 
 CynthiaAudioProcessorEditor::~CynthiaAudioProcessorEditor()
@@ -25,5 +26,12 @@ void CynthiaAudioProcessorEditor::paint (juce::Graphics& g)
 
 void CynthiaAudioProcessorEditor::resized()
 {
-    adsrUI.setBounds(getLocalBounds().reduced(50));
+
+    auto editorBounds = getLocalBounds();
+
+    int width = editorBounds.getWidth()/2;
+    int height = editorBounds.getHeight()/5;
+
+    adsrUI.setBounds(0, 0, width, height);
+    filterUI.setBounds(adsrUI.getWidth(), 0, width, height);
 }

@@ -69,6 +69,7 @@ private:
     void updatePolyMode();
     void updateADSR();
     void updateWavetable();
+    void updateFilter();
     
     Synth synth;
     std::shared_ptr<juce::AudioBuffer<float>> wavetable;
@@ -84,6 +85,9 @@ private:
     juce::AudioParameterFloat* envDecayParam;
     juce::AudioParameterFloat* envSustainParam;
     juce::AudioParameterFloat* envReleaseParam;
+    juce::AudioParameterChoice* filterTypeParam;
+    juce::AudioParameterFloat* filterCutoffParam;
+    juce::AudioParameterFloat* filterResonanceParam;
     juce::AudioParameterFloat* outputGainParam;
 
     //==============================================================================
