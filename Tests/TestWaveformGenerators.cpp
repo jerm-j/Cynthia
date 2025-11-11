@@ -16,7 +16,7 @@ TEST(TestWaveformGenerators, SineWaveIsFilledAndInRange)
     table.setSize(1, 128);
     
     SineGenerator sine;
-    sine.fillWavetable(table);
+    sine.fillWavetable(table, 0);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 
@@ -42,7 +42,7 @@ TEST(TestWaveformGenerators, SawtoothWaveIsFilledAndInRange)
     table.setSize(1, 128);
     
     SawtoothGenerator sawtooth;
-    sawtooth.fillWavetable(table);
+    sawtooth.fillWavetable(table, 1);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 
@@ -68,7 +68,7 @@ TEST(TestWaveformGenerators, TriangleWaveIsFilledAndInRange)
     table.setSize(1, 128);
     
     TriangleGenerator triangle;
-    triangle.fillWavetable(table);
+    triangle.fillWavetable(table, 2);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 
@@ -94,7 +94,7 @@ TEST(TestWaveformGenerators, SquareWaveIsFilledAndInRange)
     table.setSize(1, 128);
     
     SquareGenerator square;
-    square.fillWavetable(table);
+    square.fillWavetable(table, 3);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 

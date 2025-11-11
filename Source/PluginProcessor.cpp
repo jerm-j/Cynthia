@@ -12,11 +12,10 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
 #endif
       )
 {
-    wavetable = std::make_shared<juce::AudioBuffer<float>>(1, 128);
-    createWaveTable(wavetable);
-    synth.setWaveTable(wavetable);
-
-    castParameter(apvts, ParameterID::wavetype, wavetypeParam);
+    castParameter(apvts, ParameterID::wavetypeA, wavetypeAParam);
+    castParameter(apvts, ParameterID::wavetypeB, wavetypeBParam);
+    castParameter(apvts, ParameterID::morphValue, morphValueParam);
+    castParameter(apvts, ParameterID::detuneCents, detuneCentsParam);
     castParameter(apvts, ParameterID::polyMode, polyModeParam);
     castParameter(apvts, ParameterID::envAttack, envAttackParam);
     castParameter(apvts, ParameterID::envDecay, envDecayParam);
@@ -136,14 +135,6 @@ void CynthiaAudioProcessor::render(juce::AudioBuffer<float> &buffer, int sampleC
     synth.render(buffer, sampleCount, bufferOffset);
 }
 
-// Source: https://juce.com/tutorials/tutorial_wavetable_synth/
-void CynthiaAudioProcessor::createWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
-{
-    SineGenerator sineTable;
-    sineTable.fillWavetable(*wt);
-    synth.setWaveTable(wt);
-}
-
 // inside this method we will instantiate all the parameter objects
 juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::createParameterLayout()
 {
@@ -153,17 +144,36 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
     // the ParameterLayout assumes ownership of the AudioParameter object, which is why
     // the parameter is constructed using std::make_unique
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetype,                                       // the identifier
-        "Wavetype",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
+        ParameterID::wavetypeA,                                       // the identifier
+        "Wavetype A",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
         juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
         0));                                                         // the default choice (Sine)
         
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        ParameterID::wavetypeB,                                       // the identifier
+        "Wavetype B",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
+        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
+        1));                                                         // the default choice (Saw)
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+       ParameterID::morphValue,
+       "Morph",
+       juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
+       0.0f // default: no morphing 
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::detuneCents,
+        "Detune",
+        juce::NormalisableRange<float>(-100.0f, 100.0f, 0.01f),
+        0.0f
+    ));
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::polyMode,                         // the identifier
-        "Polyphony Mode",                              // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray{"Monophonic", "Polyphonic"}, // the list of wavetypes to choose from
-        0));                                           // the default choice (Sine)
+        ParameterID::polyMode,                         
+        "Polyphony Mode",                              
+        juce::StringArray{"Monophonic", "Polyphonic"}, 
+        1));                                           
 
     /*
         Note on Envelope ADSR params:
@@ -244,10 +254,10 @@ void CynthiaAudioProcessor::update()
 
     updateADSR();
 
-    if (wavetypeParam->getIndex() != currentWavetypeIndex)
-    {
-        updateWavetable();
-    }
+    // update waveform morphing params
+    synth.setWaveformIndices(wavetypeAParam->getIndex(), wavetypeBParam->getIndex());
+    synth.setMorphValue(morphValueParam->get());
+    synth.setDetuneCentsValue(detuneCentsParam->get());
 }
 
 void CynthiaAudioProcessor::updatePolyMode()
@@ -279,55 +289,6 @@ void CynthiaAudioProcessor::updateADSR()
     else
     {
         synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
-    }
-}
-
-void CynthiaAudioProcessor::updateWavetable()
-{
-    currentWavetypeIndex.store(wavetypeParam->getIndex());
-
-    auto newWaveTable = std::make_shared<juce::AudioBuffer<float>>(1, 128);
-
-    switch (wavetypeParam->getIndex())
-    {
-    case 0:
-    {
-        SineGenerator sine;
-        sine.fillWavetable(*newWaveTable);
-        wavetable = newWaveTable;
-        synth.setWaveTable(wavetable);
-        break;
-    }
-
-    case 1:
-    {
-        SawtoothGenerator sawtooth;
-        sawtooth.fillWavetable(*newWaveTable);
-        wavetable = newWaveTable;
-        synth.setWaveTable(wavetable);
-        break;
-    }
-
-    case 2:
-    {
-        TriangleGenerator triangle;
-        triangle.fillWavetable(*newWaveTable);
-        wavetable = newWaveTable;
-        synth.setWaveTable(wavetable);
-        break;
-    }
-
-    case 3:
-    {
-        SquareGenerator square;
-        square.fillWavetable(*newWaveTable);
-        wavetable = newWaveTable;
-        synth.setWaveTable(wavetable);
-        break;
-    }
-
-    default:
-        break;
     }
 }
 

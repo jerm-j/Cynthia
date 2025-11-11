@@ -2,6 +2,8 @@
     WaveformGenerator.h
 
     To hold the logic for generating a number of waveforms that can be then populated into the wavetable
+
+    // note these are all currently naive-waveform implementations
 */
 #pragma once
 
@@ -12,16 +14,16 @@ struct WaveformGenerator
 {
     virtual ~WaveformGenerator() = default;
     // perhaps make param arg "const" since its really only meant to be read-only
-    virtual void fillWavetable(juce::AudioBuffer<float>& wt) = 0;
+    virtual void fillWavetable(juce::AudioBuffer<float>& wt, const int channelNumber) = 0;
 };
 
 // refactor this
 // Sine implementation
 struct SineGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable, const int channelNumber) override
     {
-        auto *samples = wavetable.getWritePointer(0);
+        auto *samples = wavetable.getWritePointer(channelNumber);
         auto tableSize = wavetable.getNumSamples();
         auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize) /*(double)(tableSize-1) which is better?*/;
         auto currentAngle = 0.0;
@@ -38,9 +40,9 @@ struct SineGenerator : public WaveformGenerator
 // Sawtooth implementation
 struct SawtoothGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable, const int channelNumber) override
     {
-        auto *samples = wavetable.getWritePointer(0);
+        auto *samples = wavetable.getWritePointer(channelNumber);
         auto tableSize = wavetable.getNumSamples();
         
         for(unsigned int i = 0; i < tableSize; ++i)
@@ -54,9 +56,9 @@ struct SawtoothGenerator : public WaveformGenerator
 // Triangle implementation
 struct TriangleGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable, const int channelNumber) override
     {
-        auto *samples = wavetable.getWritePointer(0);
+        auto *samples = wavetable.getWritePointer(channelNumber);
         auto tableSize = wavetable.getNumSamples();
 
         for(unsigned int i = 0; i < tableSize; ++i)
@@ -70,9 +72,9 @@ struct TriangleGenerator : public WaveformGenerator
 // Square implementation
 struct SquareGenerator : public WaveformGenerator
 {
-    void fillWavetable(juce::AudioBuffer<float>& wavetable) override
+    void fillWavetable(juce::AudioBuffer<float>& wavetable, const int channelNumber) override
     {
-        auto *samples = wavetable.getWritePointer(0);
+        auto *samples = wavetable.getWritePointer(channelNumber);
         auto tableSize = wavetable.getNumSamples();
 
         for(unsigned int i = 0; i < tableSize; ++i)

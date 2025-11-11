@@ -31,9 +31,12 @@ class Synth
         // handle any midi messages
         void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
 
-        // dynamically set the wavetable being used
-        void setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt);
+        void setMorphValue(float newMorphValue);
+
+        void setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
         
+        void setDetuneCentsValue(float newDetuneCents);
+
         float outputGain;
 
         float envAttack;
@@ -47,6 +50,11 @@ class Synth
 
         static constexpr int MAX_VOICES = 8;
         int numVoices;
+
+        int waveformIndexA = 0;
+        int waveformIndexB = 1;
+        float morphValue = 0.0f;
+        float detuneCents = 0.0f;
 
     private:
 

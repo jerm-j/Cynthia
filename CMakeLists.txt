@@ -33,6 +33,7 @@ target_sources(Cynthia
         Source/Synth.cpp
         Source/ADSRComponent.cpp
         Source/FilterComponent.cpp
+        Source/OscillatorComponent.cpp
         
     PUBLIC
         Source/Voice.h
@@ -41,6 +42,7 @@ target_sources(Cynthia
         Source/Envelope.h
         Source/Utils.h
         Source/Filter.h
+        Source/MorphingOscillator.h
         )
 
 target_compile_definitions(Cynthia

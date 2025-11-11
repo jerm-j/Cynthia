@@ -68,18 +68,19 @@ private:
     void update();
     void updatePolyMode();
     void updateADSR();
-    void updateWavetable();
     void updateFilter();
     
     Synth synth;
-    std::shared_ptr<juce::AudioBuffer<float>> wavetable;
 
     /*
         Note that these param variables are pointers.
         The actual parameter objects are owned by the AudioProcessorValueTreeState.
         Meaning we will need to initialize them in the constructor.
     */
-    juce::AudioParameterChoice* wavetypeParam;
+    juce::AudioParameterChoice* wavetypeAParam;
+    juce::AudioParameterChoice* wavetypeBParam;
+    juce::AudioParameterFloat* morphValueParam;
+    juce::AudioParameterFloat* detuneCentsParam;
     juce::AudioParameterChoice* polyModeParam;
     juce::AudioParameterFloat* envAttackParam;
     juce::AudioParameterFloat* envDecayParam;

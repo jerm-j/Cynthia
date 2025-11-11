@@ -11,9 +11,9 @@ Synth::Synth()
     sampleRate = 44100.0f;
 }
 
-void Synth::allocateResources(double _sampleRate, int /*samplesPerBlock*/)
+void Synth::allocateResources(double sampleRate, int /*samplesPerBlock*/)
 {
-    sampleRate = static_cast<float>(_sampleRate);
+    this->sampleRate = static_cast<float>(sampleRate);
 }
 
 void Synth::deallocateResources()
@@ -105,10 +105,20 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     }
 }
 
-void Synth::setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
+void Synth::setMorphValue(float newMorphValue)
 {
-    for (Voice &voice : voices)
-        voice.setWaveTable(wt);
+    morphValue = juce::jlimit(0.0f, 1.0f, newMorphValue);
+}
+
+void Synth::setDetuneCentsValue(float newDetuneCents)
+{
+    detuneCents = juce::jlimit(-100.0f, 100.0f, newDetuneCents);
+}
+
+void Synth::setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
+{
+    waveformIndexA = juce::jlimit(0, 3, newWaveformIndexA);
+    waveformIndexB = juce::jlimit(0, 3, newWaveformIndexB);
 }
 
 int Synth::findFreeVoice() const
@@ -135,7 +145,11 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     voice.note = note;
     voice.amplitude = (velocity / 127.0f) * outputGain;
     auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
-    voice.osc.prepareWavetable((float)frequency, sampleRate);
+    
+    voice.osc.prepareWavetable(static_cast<float>(frequency), sampleRate);
+    voice.setWaveformIndices(waveformIndexA, waveformIndexB);
+    voice.setMorphValue(morphValue);
+    voice.setDetuneCents(detuneCents);
 
     voice.filter.prepare(sampleRate);
     voice.filter.setCutoff(filterCutoff);

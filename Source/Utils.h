@@ -21,7 +21,10 @@
 namespace ParameterID
 {
     #define PARAMETER_ID(str) const juce::ParameterID str(#str, 1);
-        PARAMETER_ID(wavetype)
+        PARAMETER_ID(wavetypeA)
+        PARAMETER_ID(wavetypeB)
+        PARAMETER_ID(morphValue)
+        PARAMETER_ID(detuneCents)
         PARAMETER_ID(polyMode)
         PARAMETER_ID(envAttack)
         PARAMETER_ID(envDecay)

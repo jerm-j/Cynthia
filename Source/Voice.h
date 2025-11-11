@@ -17,14 +17,14 @@
 
 #pragma once
 
-#include "WavetableOscillator.h"
+#include "MorphingOscillator.h"
 #include "Envelope.h"
 #include "Filter.h"
 
 struct Voice
 {
     int note;
-    WavetableOscillator osc;
+    MorphingOscillator osc;
     Envelope env;
     SVFFilter filter;
     float amplitude;
@@ -60,10 +60,19 @@ struct Voice
         env.release();
     }
 
-    // dynamically set the wavetable being used
-    void setWaveTable(std::shared_ptr<juce::AudioBuffer<float>> wt)
+    void setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
     {
-        osc.setWaveTable(wt);
+        osc.setWaveformIndices(newWaveformIndexA, newWaveformIndexB);
+    }
+
+    void setMorphValue(float newMorphValue)
+    {
+        osc.setMorphValue(newMorphValue);
+    }
+
+    void setDetuneCents(float newDetuneCents)
+    {
+        osc.setDetuneCents(newDetuneCents);
     }
 
 };
