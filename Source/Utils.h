@@ -1,9 +1,9 @@
 /*
     Utils.h
 
-    A place to store any utility functions to do quick math or DSP.
+    A place to store any utility functions and namespaces.
 
-    protectYourEars() source: "Creating Synthesizer Plugins Using C++ and JUCE" by Matthijs Hollemans
+    source: "Creating Synthesizer Plugins Using C++ and JUCE" by Matthijs Hollemans
 */
 
 
@@ -21,10 +21,15 @@
 namespace ParameterID
 {
     #define PARAMETER_ID(str) const juce::ParameterID str(#str, 1);
-        PARAMETER_ID(wavetypeA)
-        PARAMETER_ID(wavetypeB)
-        PARAMETER_ID(morphValue)
-        PARAMETER_ID(detuneCents)
+        PARAMETER_ID(wavetypeAOsc)
+        PARAMETER_ID(wavetypeBOsc)
+        PARAMETER_ID(morphValueOsc)
+        PARAMETER_ID(detuneCentsOsc)
+        PARAMETER_ID(wavetypeALFO)
+        PARAMETER_ID(wavetypeBLFO)
+        PARAMETER_ID(morphValueLFO)
+        PARAMETER_ID(detuneCentsLFO)
+        PARAMETER_ID(modDepthLFO)
         PARAMETER_ID(polyMode)
         PARAMETER_ID(envAttack)
         PARAMETER_ID(envDecay)

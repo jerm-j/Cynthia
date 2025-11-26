@@ -63,7 +63,6 @@ private:
     }
 
     std::atomic<bool> parametersChanged { false };
-    std::atomic<int> currentWavetypeIndex { 0 };
 
     void update();
     void updatePolyMode();
@@ -77,18 +76,27 @@ private:
         The actual parameter objects are owned by the AudioProcessorValueTreeState.
         Meaning we will need to initialize them in the constructor.
     */
-    juce::AudioParameterChoice* wavetypeAParam;
-    juce::AudioParameterChoice* wavetypeBParam;
-    juce::AudioParameterFloat* morphValueParam;
-    juce::AudioParameterFloat* detuneCentsParam;
+    juce::AudioParameterChoice* wavetypeAParamOsc;
+    juce::AudioParameterChoice* wavetypeBParamOsc;
+    juce::AudioParameterFloat* morphValueParamOsc;
+    juce::AudioParameterFloat* detuneCentsParamOsc;
+
+    juce::AudioParameterChoice* wavetypeAParamLFO;
+    juce::AudioParameterChoice* wavetypeBParamLFO;
+    juce::AudioParameterFloat* morphValueParamLFO;
+    juce::AudioParameterFloat* detuneCentsParamLFO;
+    juce::AudioParameterFloat* modDepthParamLFO;
+
     juce::AudioParameterChoice* polyModeParam;
     juce::AudioParameterFloat* envAttackParam;
     juce::AudioParameterFloat* envDecayParam;
     juce::AudioParameterFloat* envSustainParam;
     juce::AudioParameterFloat* envReleaseParam;
+
     juce::AudioParameterChoice* filterTypeParam;
     juce::AudioParameterFloat* filterCutoffParam;
     juce::AudioParameterFloat* filterResonanceParam;
+
     juce::AudioParameterFloat* outputGainParam;
 
     //==============================================================================

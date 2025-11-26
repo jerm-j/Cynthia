@@ -3,11 +3,12 @@
 
 //==============================================================================
 CynthiaAudioProcessorEditor::CynthiaAudioProcessorEditor (CynthiaAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p), adsrUI(p.apvts), filterUI(p.apvts), oscillatorUI(p.apvts)
+    : AudioProcessorEditor (&p), processorRef (p), adsrUI(p.apvts), filterUI(p.apvts), oscillatorUI(p.apvts), lfoUI(p.apvts)
 {
     addAndMakeVisible(adsrUI);
     addAndMakeVisible(filterUI);
     addAndMakeVisible(oscillatorUI);
+    addAndMakeVisible(lfoUI);
     setSize(600, 600);
 }
 
@@ -35,4 +36,5 @@ void CynthiaAudioProcessorEditor::resized()
     adsrUI.setBounds(0, 0, width, height);
     filterUI.setBounds(adsrUI.getWidth(), 0, width, height);
     oscillatorUI.setBounds(0, adsrUI.getHeight(), width, height);
+    lfoUI.setBounds(oscillatorUI.getWidth(), filterUI.getHeight(), width, height);
 }

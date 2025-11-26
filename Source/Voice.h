@@ -18,6 +18,7 @@
 #pragma once
 
 #include "MorphingOscillator.h"
+#include "MorphingLFO.h"
 #include "Envelope.h"
 #include "Filter.h"
 
@@ -25,6 +26,7 @@ struct Voice
 {
     int note;
     MorphingOscillator osc;
+    MorphingLFO lfo;
     Envelope env;
     SVFFilter filter;
     float amplitude;
@@ -39,6 +41,7 @@ struct Voice
         osc.reset();
         env.reset();
         filter.reset();
+        lfo.resetPhase();
     }
 
     float render()
@@ -46,7 +49,11 @@ struct Voice
         float sample = osc.getNextSample();
         float envelope = env.nextValue();   
         float filtered_sample = filter.processSample(sample);
-        return filtered_sample * envelope * amplitude;
+        float lfoAmount = lfo.getNextLFOSample();
+        
+        float amplitudeModulator = 1.0f + lfoAmount;
+        // currently implemented amplitude modulation
+        return filtered_sample * envelope * amplitude * amplitudeModulator;
         
         /*
             little trick for debugging the envelope:
@@ -60,19 +67,39 @@ struct Voice
         env.release();
     }
 
-    void setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
+    void setWaveformIndicesOsc(int newWaveformIndexA, int newWaveformIndexB)
     {
         osc.setWaveformIndices(newWaveformIndexA, newWaveformIndexB);
     }
 
-    void setMorphValue(float newMorphValue)
+    void setMorphValueOsc(float newMorphValue)
     {
         osc.setMorphValue(newMorphValue);
     }
 
-    void setDetuneCents(float newDetuneCents)
+    void setDetuneCentsOsc(float newDetuneCents)
     {
         osc.setDetuneCents(newDetuneCents);
+    }
+
+    void setWaveformIndicesLFO(int newWaveformIndexA, int newWaveformIndexB)
+    {
+        lfo.setWaveformIndices(newWaveformIndexA, newWaveformIndexB);
+    }
+
+    void setMorphValueLFO(float newMorphValue)
+    {
+        lfo.setMorphValue(newMorphValue);
+    }
+
+    void setDetuneCentsLFO(float newDetuneCents)
+    {
+        lfo.setDetuneCents(newDetuneCents);
+    }
+
+    void setModDepthLFO(float newModDepth)
+    {
+        lfo.setModDepth(newModDepth);
     }
 
 };

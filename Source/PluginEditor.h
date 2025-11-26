@@ -4,6 +4,7 @@
 #include "ADSRComponent.h"
 #include "FilterComponent.h"
 #include "OscillatorComponent.h"
+#include "LFOComponent.h"
 
 //==============================================================================
 class CynthiaAudioProcessorEditor final : public juce::AudioProcessorEditor
@@ -23,5 +24,6 @@ private:
     ADSRComponent adsrUI;
     FilterComponent filterUI;
     OscillatorComponent oscillatorUI;
+    LFOComponent lfoUI;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CynthiaAudioProcessorEditor)
 };

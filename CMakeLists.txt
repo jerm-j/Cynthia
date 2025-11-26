@@ -34,6 +34,7 @@ target_sources(Cynthia
         Source/ADSRComponent.cpp
         Source/FilterComponent.cpp
         Source/OscillatorComponent.cpp
+        Source/LFOComponent.cpp
         
     PUBLIC
         Source/Voice.h

@@ -12,18 +12,28 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
 #endif
       )
 {
-    castParameter(apvts, ParameterID::wavetypeA, wavetypeAParam);
-    castParameter(apvts, ParameterID::wavetypeB, wavetypeBParam);
-    castParameter(apvts, ParameterID::morphValue, morphValueParam);
-    castParameter(apvts, ParameterID::detuneCents, detuneCentsParam);
+    castParameter(apvts, ParameterID::wavetypeAOsc, wavetypeAParamOsc);
+    castParameter(apvts, ParameterID::wavetypeBOsc, wavetypeBParamOsc);
+    castParameter(apvts, ParameterID::morphValueOsc, morphValueParamOsc);
+    castParameter(apvts, ParameterID::detuneCentsOsc, detuneCentsParamOsc);
+
+    castParameter(apvts, ParameterID::wavetypeALFO, wavetypeAParamLFO);
+    castParameter(apvts, ParameterID::wavetypeBLFO, wavetypeBParamLFO);
+    castParameter(apvts, ParameterID::morphValueLFO, morphValueParamLFO);
+    castParameter(apvts, ParameterID::detuneCentsLFO, detuneCentsParamLFO);
+    castParameter(apvts, ParameterID::modDepthLFO, modDepthParamLFO);
+
     castParameter(apvts, ParameterID::polyMode, polyModeParam);
+
     castParameter(apvts, ParameterID::envAttack, envAttackParam);
     castParameter(apvts, ParameterID::envDecay, envDecayParam);
     castParameter(apvts, ParameterID::envSustain, envSustainParam);
     castParameter(apvts, ParameterID::envRelease, envReleaseParam);
+
     castParameter(apvts, ParameterID::filterType, filterTypeParam);
     castParameter(apvts, ParameterID::filterCutoff, filterCutoffParam);
     castParameter(apvts, ParameterID::filterResonance, filterResonanceParam);
+
     castParameter(apvts, ParameterID::outputGain, outputGainParam);
 
     apvts.state.addListener(this);
@@ -144,30 +154,65 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
     // the ParameterLayout assumes ownership of the AudioParameter object, which is why
     // the parameter is constructed using std::make_unique
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeA,                                       // the identifier
+        ParameterID::wavetypeAOsc,                                       // the identifier
         "Wavetype A",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
         juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
         0));                                                         // the default choice (Sine)
         
     layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeB,                                       // the identifier
+        ParameterID::wavetypeBOsc,                                       // the identifier
         "Wavetype B",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
         juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
         1));                                                         // the default choice (Saw)
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-       ParameterID::morphValue,
+       ParameterID::morphValueOsc,
        "Morph",
        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
        0.0f // default: no morphing 
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::detuneCents,
+        ParameterID::detuneCentsOsc,
         "Detune",
         juce::NormalisableRange<float>(-100.0f, 100.0f, 0.01f),
         0.0f
     ));
+
+    // ==========================================================
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        ParameterID::wavetypeALFO,                                       // the identifier
+        "Wavetype A",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
+        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
+        0));                                                         // the default choice (Sine)
+        
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        ParameterID::wavetypeBLFO,                                       // the identifier
+        "Wavetype B",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
+        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
+        1));                                                         // the default choice (Saw)
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+       ParameterID::morphValueLFO,
+       "Morph",
+       juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
+       0.0f // default: no morphing 
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::detuneCentsLFO,
+        "Detune",
+        juce::NormalisableRange<float>(-100.0f, 100.0f, 0.01f),
+        0.0f
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::modDepthLFO,
+        "Mod Depth",
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01),
+        0.0f
+    ));
+    // =======================================================
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         ParameterID::polyMode,                         
@@ -255,9 +300,15 @@ void CynthiaAudioProcessor::update()
     updateADSR();
 
     // update waveform morphing params
-    synth.setWaveformIndices(wavetypeAParam->getIndex(), wavetypeBParam->getIndex());
-    synth.setMorphValue(morphValueParam->get());
-    synth.setDetuneCentsValue(detuneCentsParam->get());
+    synth.setOscWaveformIndices(wavetypeAParamOsc->getIndex(), wavetypeBParamOsc->getIndex());
+    synth.setOscMorphValue(morphValueParamOsc->get());
+    synth.setOscDetuneCentsValue(detuneCentsParamOsc->get());
+
+    // update LFO morphing params
+    synth.setLFOWaveformIndices(wavetypeAParamLFO->getIndex(), wavetypeBParamLFO->getIndex());
+    synth.setLFOMorphValue(morphValueParamLFO->get());
+    synth.setLFODetuneCentsValue(detuneCentsParamLFO->get());
+    synth.setLFOModDepthValue(modDepthParamLFO->get());
 }
 
 void CynthiaAudioProcessor::updatePolyMode()

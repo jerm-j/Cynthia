@@ -47,6 +47,9 @@ void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int
         for (Voice &voice : voices)
         {
             if (voice.env.isActive())
+             // need to normalize this by number of active voices
+             // apply some sort of limiter, or scale by 1/MAX_VOICES
+             // this is a polyphony gain staging problem
                 output += voice.render();
         }
 
@@ -105,20 +108,41 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     }
 }
 
-void Synth::setMorphValue(float newMorphValue)
+void Synth::setOscMorphValue(float newMorphValue)
 {
-    morphValue = juce::jlimit(0.0f, 1.0f, newMorphValue);
+    morphValueOsc = juce::jlimit(0.0f, 1.0f, newMorphValue);
 }
 
-void Synth::setDetuneCentsValue(float newDetuneCents)
+void Synth::setOscDetuneCentsValue(float newDetuneCents)
 {
-    detuneCents = juce::jlimit(-100.0f, 100.0f, newDetuneCents);
+    detuneCentsOsc = juce::jlimit(-100.0f, 100.0f, newDetuneCents);
 }
 
-void Synth::setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
+void Synth::setOscWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
 {
-    waveformIndexA = juce::jlimit(0, 3, newWaveformIndexA);
-    waveformIndexB = juce::jlimit(0, 3, newWaveformIndexB);
+    waveformIndexAOsc = juce::jlimit(0, 3, newWaveformIndexA);
+    waveformIndexBOsc = juce::jlimit(0, 3, newWaveformIndexB);
+}
+
+void Synth::setLFOMorphValue(float newMorphValue)
+{
+    morphValueLFO = juce::jlimit(0.0f, 1.0f, newMorphValue);
+}
+
+void Synth::setLFODetuneCentsValue(float newDetuneCents)
+{
+    detuneCentsLFO = juce::jlimit(-100.0f, 100.0f, newDetuneCents);
+}
+
+void Synth::setLFOWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
+{
+    waveformIndexALFO = juce::jlimit(0, 3, newWaveformIndexA);
+    waveformIndexBLFO = juce::jlimit(0, 3, newWaveformIndexB);
+}
+
+void Synth::setLFOModDepthValue(float newModDepth)
+{
+    modDepthLFO = juce::jlimit(0.0f, 1.0f, newModDepth);
 }
 
 int Synth::findFreeVoice() const
@@ -147,10 +171,14 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
     
     voice.osc.prepareWavetable(static_cast<float>(frequency), sampleRate);
-    voice.setWaveformIndices(waveformIndexA, waveformIndexB);
-    voice.setMorphValue(morphValue);
-    voice.setDetuneCents(detuneCents);
-
+    voice.setWaveformIndicesOsc(waveformIndexAOsc, waveformIndexBOsc);
+    voice.setMorphValueOsc(morphValueOsc);
+    voice.setDetuneCentsOsc(detuneCentsOsc);
+    voice.lfo.prepareLFO(100.0f, sampleRate);
+    voice.setWaveformIndicesLFO(waveformIndexALFO, waveformIndexBLFO);
+    voice.setMorphValueLFO(morphValueLFO);
+    voice.setDetuneCentsLFO(detuneCentsLFO);
+    voice.setModDepthLFO(modDepthLFO);
     voice.filter.prepare(sampleRate);
     voice.filter.setCutoff(filterCutoff);
     voice.filter.setResonance(filterResonance);

@@ -75,7 +75,7 @@ public:
         // take a sample from waveformA, and waveformB and morph them together
         // if morphValue = 0.0, we only hear waveformA
         // if morphValue = 1.0, we only hear waveformB
-        float output = (1.0f-morphValue) * sampleA + morphValue * sampleB;
+        float output = ((1.0f-morphValue) * sampleA) + (morphValue * sampleB);
 
         // increment phase idices and wrap around table size
         if ((currentIndexA += tableDeltaA) >= (float) tableSize)
@@ -87,7 +87,7 @@ public:
         return output;
     }
 
-private:
+protected:
 
     // generate default waveforms and populate wavetable
     // uses WaveformGenerator interface for each waveform type
@@ -116,8 +116,8 @@ private:
         // we cut the detuneCents in half (because there are two wavetables)
         // then make detuneA negative so that waveformA will be detuned below the base frequency
         // then waveFormB will be above the base frequency
-        float detuneA = -detuneCents * 0.5f;
-        float detuneB = +detuneCents * 0.5f;
+        float detuneA = -(detuneCents * 0.5f);
+        float detuneB = +(detuneCents * 0.5f);
 
         // here we convert cent values to frequency ratios
         // one semitone = 100 cents

@@ -28,6 +28,9 @@ public:
     void prepare(double newSampleRate) override
     {
         sampleRate = newSampleRate;
+        spec.sampleRate = newSampleRate;
+        spec.maximumBlockSize = 1;
+        spec.numChannels = 1;
         filter.prepare(spec);
         updateFilterType();
     }
@@ -96,6 +99,6 @@ private:
     juce::dsp::StateVariableTPTFilter<float> filter;
     Mode mode = Mode::LowPass;
     double sampleRate = 44100.0;
-    const juce::dsp::ProcessSpec& spec = {sampleRate, 1, 1};
+    juce::dsp::ProcessSpec spec;
 };
 

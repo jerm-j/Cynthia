@@ -31,11 +31,19 @@ class Synth
         // handle any midi messages
         void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
 
-        void setMorphValue(float newMorphValue);
+        void setOscMorphValue(float newMorphValue);
 
-        void setWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
+        void setOscWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
         
-        void setDetuneCentsValue(float newDetuneCents);
+        void setOscDetuneCentsValue(float newDetuneCents);
+
+        void setLFOMorphValue(float newMorphValue);
+
+        void setLFOWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
+        
+        void setLFODetuneCentsValue(float newDetuneCents);
+
+        void setLFOModDepthValue(float newModDepth);
 
         float outputGain;
 
@@ -51,10 +59,16 @@ class Synth
         static constexpr int MAX_VOICES = 8;
         int numVoices;
 
-        int waveformIndexA = 0;
-        int waveformIndexB = 1;
-        float morphValue = 0.0f;
-        float detuneCents = 0.0f;
+        int waveformIndexAOsc = 0;
+        int waveformIndexBOsc = 1;
+        float morphValueOsc = 0.0f;
+        float detuneCentsOsc = 0.0f;
+
+        int waveformIndexALFO = 0;
+        int waveformIndexBLFO = 1;
+        float morphValueLFO = 0.0f;
+        float detuneCentsLFO = 0.0f;
+        float modDepthLFO = 0.0f;
 
     private:
 
