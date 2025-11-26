@@ -3,18 +3,21 @@
 LFOComponent::LFOComponent(APVTS &apvts) : morphValueKnobAttachment(apvts, ParameterID::morphValueLFO.getParamID(), morphValueKnob),
                                             detuneDentsKnobAttachment(apvts, ParameterID::detuneCentsLFO.getParamID(), detuneCentsKnob),
                                             modDepthKnobAttachment(apvts, ParameterID::modDepthLFO.getParamID(), modDepthKnob),
+                                            modFreqKnobAttachment(apvts, ParameterID::modFreqLFO.getParamID(), modFreqKnob),
                                             wavetypeAComboBoxAttachment(apvts, ParameterID::wavetypeALFO.getParamID(), wavetypeAComboBox),
                                             wavetypeBComboBoxAttachment(apvts, ParameterID::wavetypeBLFO.getParamID(), wavetypeBComboBox)
 {
     configureKnob(morphValueKnob);
     configureKnob(detuneCentsKnob);
     configureKnob(modDepthKnob);
+    configureKnob(modFreqKnob);
     configureComboBox(wavetypeAComboBox, juce::StringArray{"Sine", "Saw", "Triangle", "Square"});
     configureComboBox(wavetypeBComboBox, juce::StringArray{"Sine", "Saw", "Triangle", "Square"});
 
     configureComponentLabel(morphValueLabel, juce::String("Morph"));
     configureComponentLabel(detuneCentsLabel, "Detune");
     configureComponentLabel(modDepthLabel, "Mod Depth");
+    configureComponentLabel(modFreqLabel, "Mod Freq");
     configureComponentLabel(wavetypeALabel, juce::String("Wavetype A"));
     configureComponentLabel(wavetypeBLabel, juce::String("Wavetype B"));
 }
@@ -36,22 +39,24 @@ void LFOComponent::resized()
     auto bounds = getLocalBounds().reduced(10);
     auto lfoModuleArea = bounds;
     int knobSize = std::min(lfoModuleArea.getWidth()/numComponents, lfoModuleArea.getHeight()-30);
-    int comboBoxSize = knobSize/2;
+    int comboBoxSize = knobSize; // changed
     
     juce::FlexBox row;
     row.flexDirection = juce::FlexBox::Direction::row;
     row.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
     row.alignItems = juce::FlexBox::AlignItems::center;
 
-    auto morphColumn = makeComponentWithLabel(morphValueKnob, morphValueLabel, knobSize, knobSize/4);
-    auto detuneColumn = makeComponentWithLabel(detuneCentsKnob, detuneCentsLabel, knobSize, knobSize/4);
-    auto modDepthColumn = makeComponentWithLabel(modDepthKnob, modDepthLabel, knobSize, knobSize/4);
-    auto wavetypeAColumn = makeComponentWithLabel(wavetypeAComboBox, wavetypeALabel, comboBoxSize, comboBoxSize);
-    auto wavetypeBColumn = makeComponentWithLabel(wavetypeBComboBox, wavetypeBLabel, comboBoxSize, comboBoxSize);
+    auto morphColumn = makeComponentWithLabel(morphValueKnob, morphValueLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto detuneColumn = makeComponentWithLabel(detuneCentsKnob, detuneCentsLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto modDepthColumn = makeComponentWithLabel(modDepthKnob, modDepthLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto modFreqColumn = makeComponentWithLabel(modFreqKnob, modFreqLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto wavetypeAColumn = makeComponentWithLabel(wavetypeAComboBox, wavetypeALabel, comboBoxSize/3, comboBoxSize, comboBoxSize/3, comboBoxSize);
+    auto wavetypeBColumn = makeComponentWithLabel(wavetypeBComboBox, wavetypeBLabel, comboBoxSize/3, comboBoxSize, comboBoxSize/3, comboBoxSize);
 
     row.items.add(juce::FlexItem(morphColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(detuneColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(modDepthColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
+    row.items.add(juce::FlexItem(modFreqColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(wavetypeAColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(wavetypeBColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
 
@@ -63,6 +68,7 @@ void LFOComponent::resized()
     morphColumn.performLayout(columnBounds.reduced(5));
     detuneColumn.performLayout(lfoModuleArea.removeFromLeft(columnWidth).reduced(5));
     modDepthColumn.performLayout(lfoModuleArea.removeFromLeft(columnWidth).reduced(5));
+    modFreqColumn.performLayout(lfoModuleArea.removeFromLeft(columnWidth).reduced(5));
     wavetypeAColumn.performLayout(lfoModuleArea.removeFromLeft(columnWidth).reduced(5));
     wavetypeBColumn.performLayout(lfoModuleArea.removeFromLeft(columnWidth).reduced(5));
 }

@@ -31,16 +31,16 @@ void FilterComponent::resized()
     auto bounds = getLocalBounds().reduced(10);
     auto filterModuleArea = bounds;
     int knobSize = std::min(filterModuleArea.getWidth()/numComponents, filterModuleArea.getHeight()-30);
-    int comboBoxSize = knobSize/2;
+    int comboBoxSize = knobSize; //changed
     
     juce::FlexBox row;
     row.flexDirection = juce::FlexBox::Direction::row;
     row.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
     row.alignItems = juce::FlexBox::AlignItems::center;
 
-    auto cutoffFreqColumn = makeComponentWithLabel(cutoffFrequencyKnob, cutoffFrequencyLabel, knobSize, knobSize/4);
-    auto resoLvlColumn = makeComponentWithLabel(resonanceLevelKnob, resonanceLevelLabel, knobSize, knobSize/4);
-    auto filterTypeColumn = makeComponentWithLabel(filterTypeComboBox, filterTypeLabel, comboBoxSize, comboBoxSize);
+    auto cutoffFreqColumn = makeComponentWithLabel(cutoffFrequencyKnob, cutoffFrequencyLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto resoLvlColumn = makeComponentWithLabel(resonanceLevelKnob, resonanceLevelLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto filterTypeColumn = makeComponentWithLabel(filterTypeComboBox, filterTypeLabel, comboBoxSize/3, comboBoxSize, comboBoxSize/3, comboBoxSize);
 
     row.items.add(juce::FlexItem(cutoffFreqColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(resoLvlColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));

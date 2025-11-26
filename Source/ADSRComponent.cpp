@@ -39,10 +39,10 @@ void ADSRComponent::resized()
     row.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;
     row.alignItems = juce::FlexBox::AlignItems::center;
 
-    auto attackColumn = makeComponentWithLabel(attackLevelKnob, attackLevelLabel, knobSize, knobSize/4);
-    auto decayColumn = makeComponentWithLabel(decayLevelKnob, decayLevelLabel, knobSize, knobSize/4);
-    auto sustainColumn = makeComponentWithLabel(sustainLevelKnob, sustainLevelLabel, knobSize, knobSize/4);
-    auto releaseColumn = makeComponentWithLabel(releaseLevelKnob, releaseLevelLabel, knobSize, knobSize/4);
+    auto attackColumn = makeComponentWithLabel(attackLevelKnob, attackLevelLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto decayColumn = makeComponentWithLabel(decayLevelKnob, decayLevelLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto sustainColumn = makeComponentWithLabel(sustainLevelKnob, sustainLevelLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto releaseColumn = makeComponentWithLabel(releaseLevelKnob, releaseLevelLabel, knobSize/4, knobSize, knobSize, knobSize);
     
     row.items.add(juce::FlexItem(attackColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(decayColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));

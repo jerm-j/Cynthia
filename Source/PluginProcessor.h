@@ -86,6 +86,7 @@ private:
     juce::AudioParameterFloat* morphValueParamLFO;
     juce::AudioParameterFloat* detuneCentsParamLFO;
     juce::AudioParameterFloat* modDepthParamLFO;
+    juce::AudioParameterFloat* modFreqParamLFO;
 
     juce::AudioParameterChoice* polyModeParam;
     juce::AudioParameterFloat* envAttackParam;

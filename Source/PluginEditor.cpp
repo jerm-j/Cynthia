@@ -9,7 +9,7 @@ CynthiaAudioProcessorEditor::CynthiaAudioProcessorEditor (CynthiaAudioProcessor&
     addAndMakeVisible(filterUI);
     addAndMakeVisible(oscillatorUI);
     addAndMakeVisible(lfoUI);
-    setSize(600, 600);
+    setSize(1000, 500);
 }
 
 CynthiaAudioProcessorEditor::~CynthiaAudioProcessorEditor()
@@ -31,7 +31,7 @@ void CynthiaAudioProcessorEditor::resized()
     auto editorBounds = getLocalBounds();
 
     int width = editorBounds.getWidth()/2;
-    int height = editorBounds.getHeight()/5;
+    int height = editorBounds.getHeight()/2;
 
     adsrUI.setBounds(0, 0, width, height);
     filterUI.setBounds(adsrUI.getWidth(), 0, width, height);

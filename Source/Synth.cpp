@@ -145,6 +145,11 @@ void Synth::setLFOModDepthValue(float newModDepth)
     modDepthLFO = juce::jlimit(0.0f, 1.0f, newModDepth);
 }
 
+void Synth::setLFOModFreqValue(float frequency) 
+{
+    modFreqLFO = juce::jlimit(1.0f, 500.0f,frequency);
+}
+
 int Synth::findFreeVoice() const
 {
     int freeVoiceIndex = 0;
@@ -174,7 +179,8 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     voice.setWaveformIndicesOsc(waveformIndexAOsc, waveformIndexBOsc);
     voice.setMorphValueOsc(morphValueOsc);
     voice.setDetuneCentsOsc(detuneCentsOsc);
-    voice.lfo.prepareLFO(100.0f, sampleRate);
+
+    voice.lfo.prepareLFO(modFreqLFO, sampleRate);
     voice.setWaveformIndicesLFO(waveformIndexALFO, waveformIndexBLFO);
     voice.setMorphValueLFO(morphValueLFO);
     voice.setDetuneCentsLFO(detuneCentsLFO);

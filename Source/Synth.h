@@ -45,6 +45,8 @@ class Synth
 
         void setLFOModDepthValue(float newModDepth);
 
+        void setLFOModFreqValue(float frequency);
+
         float outputGain;
 
         float envAttack;
@@ -69,6 +71,7 @@ class Synth
         float morphValueLFO = 0.0f;
         float detuneCentsLFO = 0.0f;
         float modDepthLFO = 0.0f;
+        float modFreqLFO = 0.0f;
 
     private:
 

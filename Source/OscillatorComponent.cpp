@@ -34,17 +34,17 @@ void OscillatorComponent::resized()
     auto bounds = getLocalBounds().reduced(10);
     auto oscModuleArea = bounds;
     int knobSize = std::min(oscModuleArea.getWidth()/numComponents, oscModuleArea.getHeight()-30);
-    int comboBoxSize = knobSize/2;
+    int comboBoxSize = knobSize; // changed
     
     juce::FlexBox row;
     row.flexDirection = juce::FlexBox::Direction::row;
     row.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
     row.alignItems = juce::FlexBox::AlignItems::center;
 
-    auto morphColumn = makeComponentWithLabel(morphValueKnob, morphValueLabel, knobSize, knobSize/4);
-    auto detuneColumn = makeComponentWithLabel(detuneCentsKnob, detuneCentsLabel, knobSize, knobSize/4);
-    auto wavetypeAColumn = makeComponentWithLabel(wavetypeAComboBox, wavetypeALabel, comboBoxSize, comboBoxSize);
-    auto wavetypeBColumn = makeComponentWithLabel(wavetypeBComboBox, wavetypeBLabel, comboBoxSize, comboBoxSize);
+    auto morphColumn = makeComponentWithLabel(morphValueKnob, morphValueLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto detuneColumn = makeComponentWithLabel(detuneCentsKnob, detuneCentsLabel, knobSize/4, knobSize, knobSize, knobSize);
+    auto wavetypeAColumn = makeComponentWithLabel(wavetypeAComboBox, wavetypeALabel, comboBoxSize/3, comboBoxSize, comboBoxSize/3, comboBoxSize);
+    auto wavetypeBColumn = makeComponentWithLabel(wavetypeBComboBox, wavetypeBLabel, comboBoxSize/3, comboBoxSize, comboBoxSize/3, comboBoxSize);
 
     row.items.add(juce::FlexItem(morphColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));
     row.items.add(juce::FlexItem(detuneColumn).withFlex(1.0f).withMargin({5, 5, 5, 5}));

@@ -30,6 +30,7 @@ namespace ParameterID
         PARAMETER_ID(morphValueLFO)
         PARAMETER_ID(detuneCentsLFO)
         PARAMETER_ID(modDepthLFO)
+        PARAMETER_ID(modFreqLFO)
         PARAMETER_ID(polyMode)
         PARAMETER_ID(envAttack)
         PARAMETER_ID(envDecay)

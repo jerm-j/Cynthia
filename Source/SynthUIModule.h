@@ -23,9 +23,25 @@ public:
 
 protected:
 
+    // template <typename T>
+    // inline juce::FlexBox makeComponentWithLabel(T &component, juce::Label &componentLabel,
+    //                                      const int componentSize, const int componentLabelSize)
+    // {
+    //     // compile time assertion to ensure that only class types derived from juce::Component are passed for generic type T.
+    //     static_assert(std::is_base_of<juce::Component, T>::value, "T must be class type derived from juce::Component");
+
+    //     juce::FlexBox column;
+    //     column.flexDirection = juce::FlexBox::Direction::column;
+    //     column.alignItems = juce::FlexBox::AlignItems::center;
+
+    //     column.items.add(juce::FlexItem(componentLabel).withMinWidth(componentSize).withMinHeight(componentLabelSize));
+    //     column.items.add(juce::FlexItem(component).withMinWidth(componentSize).withMinHeight(componentSize));
+
+    //     return column;
+    // }
+
     template <typename T>
-    inline juce::FlexBox makeComponentWithLabel(T &component, juce::Label &componentLabel,
-                                         const int componentSize, const int componentLabelSize)
+    inline juce::FlexBox makeComponentWithLabel(T &component, juce::Label &componentLabel, int labelHeight, int labelWidth, int componentHeight, int componentWidth)
     {
         // compile time assertion to ensure that only class types derived from juce::Component are passed for generic type T.
         static_assert(std::is_base_of<juce::Component, T>::value, "T must be class type derived from juce::Component");
@@ -34,8 +50,8 @@ protected:
         column.flexDirection = juce::FlexBox::Direction::column;
         column.alignItems = juce::FlexBox::AlignItems::center;
 
-        column.items.add(juce::FlexItem(componentLabel).withMinWidth(componentSize).withMinHeight(componentLabelSize));
-        column.items.add(juce::FlexItem(component).withMinWidth(componentSize).withMinHeight(componentSize));
+        column.items.add(juce::FlexItem(componentLabel).withMinWidth(labelWidth).withMinHeight(labelHeight));
+        column.items.add(juce::FlexItem(component).withMinWidth(componentWidth).withMinHeight(componentHeight));
 
         return column;
     }

@@ -22,6 +22,7 @@ CynthiaAudioProcessor::CynthiaAudioProcessor()
     castParameter(apvts, ParameterID::morphValueLFO, morphValueParamLFO);
     castParameter(apvts, ParameterID::detuneCentsLFO, detuneCentsParamLFO);
     castParameter(apvts, ParameterID::modDepthLFO, modDepthParamLFO);
+    castParameter(apvts, ParameterID::modFreqLFO, modFreqParamLFO);
 
     castParameter(apvts, ParameterID::polyMode, polyModeParam);
 
@@ -212,6 +213,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.01),
         0.0f
     ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        ParameterID::modFreqLFO,
+        "Mod Freq",
+        juce::NormalisableRange<float>(1.0f, 500.0f, 0.01),
+        0.0f
+    ));
     // =======================================================
 
     layout.add(std::make_unique<juce::AudioParameterChoice>(
@@ -309,6 +317,7 @@ void CynthiaAudioProcessor::update()
     synth.setLFOMorphValue(morphValueParamLFO->get());
     synth.setLFODetuneCentsValue(detuneCentsParamLFO->get());
     synth.setLFOModDepthValue(modDepthParamLFO->get());
+    synth.setLFOModFreqValue(modFreqParamLFO->get());
 }
 
 void CynthiaAudioProcessor::updatePolyMode()
