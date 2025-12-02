@@ -86,6 +86,7 @@ void CynthiaAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     buffer.clear();
 
     bool expected = true;
+    
     // this line does a thread-safe check to see if parametersChanged is true.
     // if so, it calls the update method to perform parameter recalculation
     // then immediately sets parametersChanged back to false
@@ -151,150 +152,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout CynthiaAudioProcessor::creat
 {
     // a helper object used to construct the APVTS
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
-
-    // the ParameterLayout assumes ownership of the AudioParameter object, which is why
-    // the parameter is constructed using std::make_unique
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeAOsc,                                       // the identifier
-        "Wavetype A",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        0));                                                         // the default choice (Sine)
-        
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeBOsc,                                       // the identifier
-        "Wavetype B",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        1));                                                         // the default choice (Saw)
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-       ParameterID::morphValueOsc,
-       "Morph",
-       juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
-       0.0f // default: no morphing 
-    ));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::detuneCentsOsc,
-        "Detune",
-        juce::NormalisableRange<float>(-100.0f, 100.0f, 0.01f),
-        0.0f
-    ));
-
-    // ==========================================================
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeALFO,                                       // the identifier
-        "Wavetype A",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        0));                                                         // the default choice (Sine)
-        
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::wavetypeBLFO,                                       // the identifier
-        "Wavetype B",                                                  // human readable name of the parameter (this is what the DAW shows to the user)
-        juce::StringArray{"Sine", "Sawtooth", "Triangle", "Square"}, // the list of wavetypes to choose from
-        1));                                                         // the default choice (Saw)
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-       ParameterID::morphValueLFO,
-       "Morph",
-       juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
-       0.0f // default: no morphing 
-    ));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::detuneCentsLFO,
-        "Detune",
-        juce::NormalisableRange<float>(-100.0f, 100.0f, 0.01f),
-        0.0f
-    ));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::modDepthLFO,
-        "Mod Depth",
-        juce::NormalisableRange<float>(0.0f, 1.0f, 0.01),
-        0.0f
-    ));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::modFreqLFO,
-        "Mod Freq",
-        juce::NormalisableRange<float>(1.0f, 500.0f, 0.01),
-        0.0f
-    ));
-    // =======================================================
-
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::polyMode,                         
-        "Polyphony Mode",                              
-        juce::StringArray{"Monophonic", "Polyphonic"}, 
-        1));                                           
-
-    /*
-        Note on Envelope ADSR params:
-            Attack, Decay, Sustain, and Release are measured as percentages.
-            0% = fast as possible
-            100% = slow as possible
-
-            "Sustain is a percentage of the amplitude level... it is not a time
-            but a level. It determines how load the sound is during the steady part...
-            Sustain level does not change based on the note velocity... no matter how loud
-            or how quiet it is, the sustain level is always relative to the note's amplitude."
-    */
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::envAttack,
-        "Env Attack",
-        juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
-        0.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::envDecay,
-        "Env Decay",
-        juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
-        50.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::envSustain,
-        "Env Sustain",
-        juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
-        100.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::envRelease,
-        "Env Release",
-        juce::NormalisableRange<float>(0.0f, 100.0f, 1.0f),
-        30.0f,
-        juce::AudioParameterFloatAttributes().withLabel("%")));
-
-    layout.add(std::make_unique<juce::AudioParameterChoice>(
-        ParameterID::filterType,
-        "Filter Type",
-        juce::StringArray{"LowPass", "HighPass", "BandPass"},
-        0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::filterCutoff,
-        "Filter Cutoff",
-        juce::NormalisableRange<float>(1.0f, 20000.0f, 1.0f),
-        10000.0f,
-        juce::AudioParameterFloatAttributes().withLabel("Hz")));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::filterResonance,
-        "Filter Resonance",
-        juce::NormalisableRange<float>(0.01f, 1.0f, 0.01f),
-        0.5f,
-        juce::AudioParameterFloatAttributes().withLabel("Q")));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        ParameterID::outputGain,
-        "Output Gain",
-        juce::NormalisableRange<float>(0.0f, 1.0f, 0.1),
-        0.5f,
-        juce::AudioParameterFloatAttributes()));
-
-    return layout;
+    return configureLayout();
 }
 
 void CynthiaAudioProcessor::update()
@@ -307,12 +165,21 @@ void CynthiaAudioProcessor::update()
 
     updateADSR();
 
-    // update waveform morphing params
+    updateDateWavetable();
+
+    updateLFO();
+}
+
+void CynthiaAudioProcessor::updateDateWavetable() 
+{
+
     synth.setOscWaveformIndices(wavetypeAParamOsc->getIndex(), wavetypeBParamOsc->getIndex());
     synth.setOscMorphValue(morphValueParamOsc->get());
     synth.setOscDetuneCentsValue(detuneCentsParamOsc->get());
+}
 
-    // update LFO morphing params
+void CynthiaAudioProcessor::updateLFO()
+{
     synth.setLFOWaveformIndices(wavetypeAParamLFO->getIndex(), wavetypeBParamLFO->getIndex());
     synth.setLFOMorphValue(morphValueParamLFO->get());
     synth.setLFODetuneCentsValue(detuneCentsParamLFO->get());
@@ -334,22 +201,10 @@ void CynthiaAudioProcessor::updateFilter()
 
 void CynthiaAudioProcessor::updateADSR()
 {
-    float sampleRate = float(getSampleRate());
-    float inverseSampleRate = 1.0f / sampleRate;
-
-    synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envAttackParam->get()));
-    synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envDecayParam->get()));
-    synth.envSustain = envSustainParam->get() / 100.0f;
-
-    float envRelease = envReleaseParam->get();
-    if (envRelease < 1.0f)
-    {
-        synth.envRelease = 0.075f; // extra fast release
-    }
-    else
-    {
-        synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
-    }
+    synth.envAttack = envAttackParam->get();
+    synth.envDecay = envDecayParam->get();
+    synth.envSustain = envSustainParam->get();
+    synth.envRelease = envReleaseParam->get();  
 }
 
 //==============================================================================
@@ -452,10 +307,6 @@ bool CynthiaAudioProcessor::hasEditor() const
 juce::AudioProcessorEditor *CynthiaAudioProcessor::createEditor()
 {
     return new CynthiaAudioProcessorEditor(*this);
-
-    // auto genericEditor = new juce::GenericAudioProcessorEditor(*this);
-    // genericEditor->setSize(500, 200);
-    // return genericEditor;
 }
 
 //==============================================================================

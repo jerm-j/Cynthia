@@ -1,4 +1,4 @@
-#include "FilterComponent.h"
+#include "Cynthia_UI/FilterComponent.h"
 
 FilterComponent::FilterComponent(APVTS &apvts) : cutoffFrequencyAttachment(apvts, ParameterID::filterCutoff.getParamID(), cutoffFrequencyKnob),
                                                  resonanceLevelAttachment(apvts, ParameterID::filterResonance.getParamID(), resonanceLevelKnob),

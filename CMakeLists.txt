@@ -30,20 +30,21 @@ target_sources(Cynthia
     PRIVATE
         Source/PluginEditor.cpp
         Source/PluginProcessor.cpp
-        Source/Synth.cpp
-        Source/ADSRComponent.cpp
-        Source/FilterComponent.cpp
-        Source/OscillatorComponent.cpp
-        Source/LFOComponent.cpp
+        Source/Cynthia_DSP/Synth.cpp
+        Source/Cynthia_UI/ADSRComponent.cpp
+        Source/Cynthia_UI/FilterComponent.cpp
+        Source/Cynthia_UI/OscillatorComponent.cpp
+        Source/Cynthia_UI//LFOComponent.cpp
         
     PUBLIC
-        Source/Voice.h
-        Source/WavetableOscillator.h
-        Source/WaveformGenerator.h
-        Source/Envelope.h
-        Source/Utils.h
-        Source/Filter.h
-        Source/MorphingOscillator.h
+        Source/Cynthia_DSP/Voice.h
+        Source/Cynthia_DSP/WavetableOscillator.h
+        Source/Cynthia_DSP/WaveformGenerator.h
+        Source/Cynthia_DSP/Envelope.h
+        Source/Cynthia_Utilities/Utils.h
+        Source/Cynthia_DSP/Filter.h
+        Source/Cynthia_DSP/MorphingOscillator.h
+        Source/Cynthia_DSP/MorphingLFO.h
         )
 
 target_compile_definitions(Cynthia

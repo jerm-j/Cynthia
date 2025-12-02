@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <juce_audio_basics/juce_audio_basics.h>
-#include "WaveformGenerator.h"
+#include "../Source/Cynthia_DSP/WaveformGenerator.h"
 
 /*
     Test Suite Name: TestWaveformGenerators
@@ -10,13 +10,18 @@
     and only with sample values of a sine wave that are between -1 and 1 inclusive.
 */
 
+inline static int sineChannelIndex = 0;
+inline static int sawChannelIndex = 1;
+inline static int triChannelIndex = 2;
+inline static int squareChannelIndex = 3;
+
 TEST(TestWaveformGenerators, SineWaveIsFilledAndInRange)
 {
     juce::AudioBuffer<float> table;
-    table.setSize(1, 128);
+    table.setSize(1, 2048);
     
     SineGenerator sine;
-    sine.fillWavetable(table, 0);
+    sine.fillWavetable(table, sineChannelIndex);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 
@@ -39,10 +44,10 @@ TEST(TestWaveformGenerators, SineWaveIsFilledAndInRange)
 TEST(TestWaveformGenerators, SawtoothWaveIsFilledAndInRange)
 {
     juce::AudioBuffer<float> table;
-    table.setSize(1, 128);
+    table.setSize(1, 2048);
     
     SawtoothGenerator sawtooth;
-    sawtooth.fillWavetable(table, 1);
+    sawtooth.fillWavetable(table, sawChannelIndex);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 
@@ -65,7 +70,7 @@ TEST(TestWaveformGenerators, SawtoothWaveIsFilledAndInRange)
 TEST(TestWaveformGenerators, TriangleWaveIsFilledAndInRange)
 {
     juce::AudioBuffer<float> table;
-    table.setSize(1, 128);
+    table.setSize(1, 2048);
     
     TriangleGenerator triangle;
     triangle.fillWavetable(table, 2);
@@ -91,10 +96,10 @@ TEST(TestWaveformGenerators, TriangleWaveIsFilledAndInRange)
 TEST(TestWaveformGenerators, SquareWaveIsFilledAndInRange)
 {
     juce::AudioBuffer<float> table;
-    table.setSize(1, 128);
+    table.setSize(1, 2048);
     
     SquareGenerator square;
-    square.fillWavetable(table, 3);
+    square.fillWavetable(table, squareChannelIndex);
 
     ASSERT_GT(table.getNumSamples(), 0) << "Wavetable is empty!";
 

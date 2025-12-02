@@ -1,4 +1,4 @@
-#include "ADSRComponent.h"
+#include "Cynthia_UI/ADSRComponent.h"
 
 ADSRComponent::ADSRComponent(APVTS &apvts) : attackLevelAttachment(apvts, ParameterID::envAttack.getParamID(), attackLevelKnob),
                                                                           decayLevelAttachment(apvts, ParameterID::envDecay.getParamID(), decayLevelKnob),

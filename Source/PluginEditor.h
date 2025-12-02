@@ -1,10 +1,10 @@
 #pragma once
 
 #include "PluginProcessor.h"
-#include "ADSRComponent.h"
-#include "FilterComponent.h"
-#include "OscillatorComponent.h"
-#include "LFOComponent.h"
+#include "Cynthia_UI/ADSRComponent.h"
+#include "Cynthia_UI/FilterComponent.h"
+#include "Cynthia_UI/OscillatorComponent.h"
+#include "Cynthia_UI/LFOComponent.h"
 
 //==============================================================================
 class CynthiaAudioProcessorEditor final : public juce::AudioProcessorEditor

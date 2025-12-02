@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include "MorphingOscillator.h"
-#include "MorphingLFO.h"
-#include "Envelope.h"
-#include "Filter.h"
+#include "Cynthia_DSP/MorphingOscillator.h"
+#include "Cynthia_DSP/MorphingLFO.h"
+#include "Cynthia_DSP/Envelope.h"
+#include "Cynthia_DSP/Filter.h"
 
 struct Voice
 {
@@ -47,25 +47,33 @@ struct Voice
     float render()
     {
         float sample = osc.getNextSample();
-        float envelope = env.nextValue();   
+        float envelope = env.getNextSample();   
         float filtered_sample = filter.processSample(sample);
+
         float lfoAmount = lfo.getNextLFOSample();
-        
         float amplitudeModulator = 1.0f + lfoAmount;
+        amplitudeModulator = juce::jlimit(-1.0f, 1.0f, amplitudeModulator);
+
         // currently implemented amplitude modulation
         return filtered_sample * envelope * amplitude * amplitudeModulator;
         
         /*
-            little trick for debugging the envelope:
-                just return the envelope and view the output through the oscilloscope
+            little trick for debugging the envelope or lfo:
+                just return the envelope or lfo and view the output through the oscilloscope
         */
         // return envelope;
+        // return lfoAmount;
     }
 
-    void release()
+    void noteOff()
     {
-        env.release();
+        env.noteOff();
     }
+
+    // void release()
+    // {
+    //     env.release();
+    // }
 
     void setWaveformIndicesOsc(int newWaveformIndexA, int newWaveformIndexB)
     {

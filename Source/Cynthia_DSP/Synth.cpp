@@ -4,7 +4,7 @@
     Source: "Creating Synthesizer Plug-ins with C++ and JUCE" by Matthijs Hollemans
 */
 
-#include "Synth.h"
+#include "Cynthia_DSP/Synth.h"
 
 Synth::Synth()
 {
@@ -44,14 +44,24 @@ void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int
     {
         float output = 0.0f;
 
+        // variable to increment num active voices
         for (Voice &voice : voices)
         {
             if (voice.env.isActive())
-             // need to normalize this by number of active voices
-             // apply some sort of limiter, or scale by 1/MAX_VOICES
-             // this is a polyphony gain staging problem
+            {
+                // increment that variable
+
+                // need to normalize this by number of active voices
+                // apply some sort of limiter, or scale by 1/MAX_VOICES
+                // this is a polyphony gain staging problem
                 output += voice.render();
+            }
+                
         }
+
+        output = juce::jlimit(-1.0f, 1.0f, output);
+
+        // scale the output by the number of active voices
 
         for (int channel = 0; channel < outputBuffers.getNumChannels(); ++channel)
         {
@@ -153,13 +163,21 @@ void Synth::setLFOModFreqValue(float frequency)
 int Synth::findFreeVoice() const
 {
     int freeVoiceIndex = 0;
-    float refLevel = 100.0f; // louder than any envelope
+    float refLevel = 1.0f; // louder than any envelope
 
     for (int voiceIndex = 0; voiceIndex < MAX_VOICES; ++voiceIndex)
     {
-        if (voices[voiceIndex].env.level < refLevel && !voices[voiceIndex].env.isInAttack())
+        const auto& voice = voices[voiceIndex];
+        float level = voice.env.getCurrentLevel();
+
+        if (!voice.env.isActive())
         {
-            refLevel = voices[voiceIndex].env.level;
+            return voiceIndex;
+        }
+
+        if(level < refLevel)
+        {
+            refLevel = level;
             freeVoiceIndex = voiceIndex;
         }
     }
@@ -191,11 +209,9 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     voice.filter.setMode(filterType);
 
     Envelope &env = voice.env;
-    env.attackMultiplier = envAttack;
-    env.decayMultiplier = envDecay;
-    env.sustainLevel = envSustain;
-    env.releaseMultiplier = envRelease;
-    env.attack();
+    env.prepare(sampleRate, 0);
+    env.setParameters(envAttack, envDecay, envSustain, envRelease);
+    env.noteOn();
 }
 
 void Synth::noteOn(int note, int velocity)
@@ -216,7 +232,7 @@ void Synth::noteOff(int note)
     {
         if (voice.note == note)
         {
-            voice.release();
+            voice.noteOff();
             voice.note = 0;
         }
     }

@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include "Voice.h"
-#include "NoiseGenerator.h"
-#include "Utils.h"
+#include "Cynthia_DSP/Voice.h"
+#include "Cynthia_DSP/NoiseGenerator.h"
+#include "Cynthia_Utilities/Utils.h"
 
 class Synth
 {
@@ -58,7 +58,7 @@ class Synth
         float filterCutoff;
         float filterResonance;
 
-        static constexpr int MAX_VOICES = 8;
+        static constexpr int MAX_VOICES = 16;
         int numVoices;
 
         int waveformIndexAOsc = 0;
@@ -88,7 +88,7 @@ class Synth
 
         float sampleRate;
 
-        // this allocates room for all 8 voices. In monophonic mode, the synth
+        // this allocates room for all 16 voices. In monophonic mode, the synth
         // will only use the first object: voices[0]
         std::array<Voice, MAX_VOICES> voices;
 };

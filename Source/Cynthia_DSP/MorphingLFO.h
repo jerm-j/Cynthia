@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MorphingOscillator.h"
+#include "Cynthia_DSP/MorphingOscillator.h"
 
 class MorphingLFO : public MorphingOscillator
 {

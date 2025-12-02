@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "Utils.h"
+#include "Cynthia_Utilities/Utils.h"
 
 class SynthUIModule : public juce::Component
 {

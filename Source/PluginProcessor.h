@@ -1,9 +1,7 @@
 #pragma once
-#include "Synth.h"
-#include "WaveformGenerator.h"
-#include "Utils.h"
-
-
+#include "Cynthia_DSP/Synth.h"
+#include "Cynthia_DSP/WaveformGenerator.h"
+#include "Cynthia_Utilities/Utils.h"
 
 //==============================================================================
 class CynthiaAudioProcessor final : public juce::AudioProcessor, 
@@ -68,6 +66,8 @@ private:
     void updatePolyMode();
     void updateADSR();
     void updateFilter();
+    void updateDateWavetable();
+    void updateLFO();
     
     Synth synth;
 

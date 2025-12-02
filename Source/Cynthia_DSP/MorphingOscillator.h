@@ -12,7 +12,7 @@
 
 #pragma once
 #include <juce_audio_basics/juce_audio_basics.h>
-#include "WaveformGenerator.h"
+#include "Cynthia_DSP/WaveformGenerator.h"
 
 class MorphingOscillator
 {
@@ -160,12 +160,11 @@ protected:
     double tableDeltaA = 0.0; // phase increment waveformA
     double tableDeltaB = 0.0; // phase increment waveformB
     double baseTableDelta = 0.0;
-    float baseFrequency = 440.0f;
+    float baseFrequency = 440.0f; // based on A = 440 Hz (standard concert tuning)
     float sampleRate = 44100.0f;
 
-    int waveformIndexA = 0;
-    int waveformIndexB = 1;
+    int waveformIndexA = 0; // use to specify which wavetable channel we're on (default: sine)
+    int waveformIndexB = 1;  // use to specify which wavetable channel we're on (default: sawtooth)
     float morphValue = 0.0f;
-    float detuneCents = 0.0f;
-    
+    float detuneCents = 0.0f;   
 };

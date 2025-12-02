@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SynthUIModule.h"
+#include "Cynthia_UI/SynthUIModule.h"
 
 
 class ADSRComponent : public SynthUIModule
