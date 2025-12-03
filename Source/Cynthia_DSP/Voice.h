@@ -54,7 +54,7 @@ struct Voice
         float amplitudeModulator = 1.0f + lfoAmount;
         amplitudeModulator = juce::jlimit(-1.0f, 1.0f, amplitudeModulator);
 
-        // currently implemented amplitude modulation
+        // our signal chain
         return filtered_sample * envelope * amplitude * amplitudeModulator;
         
         /*
@@ -69,11 +69,6 @@ struct Voice
     {
         env.noteOff();
     }
-
-    // void release()
-    // {
-    //     env.release();
-    // }
 
     void setWaveformIndicesOsc(int newWaveformIndexA, int newWaveformIndexB)
     {

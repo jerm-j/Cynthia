@@ -203,6 +203,7 @@ void Synth::startVoice(int voiceIndex, int note, int velocity)
     voice.setMorphValueLFO(morphValueLFO);
     voice.setDetuneCentsLFO(detuneCentsLFO);
     voice.setModDepthLFO(modDepthLFO);
+    
     voice.filter.prepare(sampleRate);
     voice.filter.setCutoff(filterCutoff);
     voice.filter.setResonance(filterResonance);

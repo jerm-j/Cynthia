@@ -9,7 +9,7 @@ CynthiaAudioProcessorEditor::CynthiaAudioProcessorEditor (CynthiaAudioProcessor&
     addAndMakeVisible(filterUI);
     addAndMakeVisible(oscillatorUI);
     addAndMakeVisible(lfoUI);
-    setSize(1000, 500);
+    setSize(900, 400);
 }
 
 CynthiaAudioProcessorEditor::~CynthiaAudioProcessorEditor()

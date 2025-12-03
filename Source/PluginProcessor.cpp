@@ -172,7 +172,6 @@ void CynthiaAudioProcessor::update()
 
 void CynthiaAudioProcessor::updateDateWavetable() 
 {
-
     synth.setOscWaveformIndices(wavetypeAParamOsc->getIndex(), wavetypeBParamOsc->getIndex());
     synth.setOscMorphValue(morphValueParamOsc->get());
     synth.setOscDetuneCentsValue(detuneCentsParamOsc->get());

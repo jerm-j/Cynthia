@@ -26,25 +26,20 @@ class Synth
         // reset the state of the synth
         void reset();
         // render the current block of audio
-        // void render(float** outputBuffers, int sampleCount);
         void render(juce::AudioBuffer<float>& outputBuffers, int sampleCount, int bufferOffset);
         // handle any midi messages
         void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
 
+        // Oscillator object param setters
         void setOscMorphValue(float newMorphValue);
-
         void setOscWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
-        
         void setOscDetuneCentsValue(float newDetuneCents);
 
+        // LFO object param setters
         void setLFOMorphValue(float newMorphValue);
-
         void setLFOWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
-        
         void setLFODetuneCentsValue(float newDetuneCents);
-
         void setLFOModDepthValue(float newModDepth);
-
         void setLFOModFreqValue(float frequency);
 
         float outputGain;
