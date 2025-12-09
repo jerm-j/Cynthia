@@ -1,3 +1,13 @@
+/*
+    Filter.h
+
+    Includes an abstract base class, Filter, to allow implementations of different filter types in the future
+
+    Currently one implementation: SVFilter (internally JUCE's StateVariableTPTFilter)
+
+*/
+
+
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
@@ -50,6 +60,8 @@ public:
         filter.setResonance(q);
     }
 
+    // sets the mode member variable "mode" and then calls 
+    // updateFilterType(), which updates the internal JUCE filter's mode
     void setMode(int newMode)
     {
         switch(newMode)

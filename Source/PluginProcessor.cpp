@@ -1,3 +1,12 @@
+/*
+
+    PluginProcessor.cpp
+
+    Our main audio processor that handle communication with the host and coordinates with
+    the APVTS for UI communication, and the Synth for actual DSP.
+
+*/
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -193,17 +202,17 @@ void CynthiaAudioProcessor::updatePolyMode()
 
 void CynthiaAudioProcessor::updateFilter()
 {
-    synth.filterType = filterTypeParam->getIndex();
-    synth.filterCutoff = filterCutoffParam->get();
-    synth.filterResonance = filterResonanceParam->get();
+    synth.setFilterType(filterTypeParam->getIndex());
+    synth.setFilterCutoff(filterCutoffParam->get());
+    synth.setFilterResonance(filterResonanceParam->get());
 }
 
 void CynthiaAudioProcessor::updateADSR()
 {
-    synth.envAttack = envAttackParam->get();
-    synth.envDecay = envDecayParam->get();
-    synth.envSustain = envSustainParam->get();
-    synth.envRelease = envReleaseParam->get();  
+    synth.setEnvAttack(envAttackParam->get());
+    synth.setEnvDecay(envDecayParam->get());
+    synth.setEnvSustain(envSustainParam->get());
+    synth.setEnvRelease(envReleaseParam->get());
 }
 
 //==============================================================================

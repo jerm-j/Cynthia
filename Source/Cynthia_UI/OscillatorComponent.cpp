@@ -12,7 +12,7 @@ OscillatorComponent::OscillatorComponent(APVTS &apvts) : morphValueKnobAttachmen
     configureComboBox(wavetypeBComboBox, juce::StringArray{"Sine", "Saw", "Triangle", "Square"});
 
     configureComponentLabel(morphValueLabel, juce::String("Morph"));
-    configureComponentLabel(detuneCentsLabel, "Detune");
+    configureComponentLabel(detuneCentsLabel, juce::String("Detune"));
     configureComponentLabel(wavetypeALabel, juce::String("Wavetype A"));
     configureComponentLabel(wavetypeBLabel, juce::String("Wavetype B"));
 }

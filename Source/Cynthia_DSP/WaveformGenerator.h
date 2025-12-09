@@ -13,7 +13,6 @@
 struct WaveformGenerator
 {
     virtual ~WaveformGenerator() = default;
-    // perhaps make param arg "const" since its really only meant to be read-only
     virtual void fillWavetable(juce::AudioBuffer<float>& wt, const int channelNumber) = 0;
 };
 
@@ -25,7 +24,7 @@ struct SineGenerator : public WaveformGenerator
     {
         auto *samples = wavetable.getWritePointer(channelNumber);
         auto tableSize = wavetable.getNumSamples();
-        auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize) /*(double)(tableSize-1) which is better?*/;
+        auto angleDelta = juce::MathConstants<double>::twoPi / (double)(tableSize);
         auto currentAngle = 0.0;
 
         for (unsigned int i = 0; i < tableSize; ++i)

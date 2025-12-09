@@ -1,19 +1,19 @@
 #include "Cynthia_UI/ADSRComponent.h"
 
-ADSRComponent::ADSRComponent(APVTS &apvts) : attackLevelAttachment(apvts, ParameterID::envAttack.getParamID(), attackLevelKnob),
-                                                                          decayLevelAttachment(apvts, ParameterID::envDecay.getParamID(), decayLevelKnob),
-                                                                          sustainLevelAttachment(apvts, ParameterID::envSustain.getParamID(), sustainLevelKnob),
-                                                                          releaseLevelAttachment(apvts, ParameterID::envRelease.getParamID(), releaseLevelKnob)
+ADSRComponent::ADSRComponent(APVTS &apvts) :    attackLevelAttachment(apvts, ParameterID::envAttack.getParamID(), attackLevelKnob),
+                                                decayLevelAttachment(apvts, ParameterID::envDecay.getParamID(), decayLevelKnob),
+                                                sustainLevelAttachment(apvts, ParameterID::envSustain.getParamID(), sustainLevelKnob),
+                                                releaseLevelAttachment(apvts, ParameterID::envRelease.getParamID(), releaseLevelKnob)
 {
     configureKnob(attackLevelKnob);
     configureKnob(decayLevelKnob);
     configureKnob(sustainLevelKnob);
     configureKnob(releaseLevelKnob);
 
-    configureComponentLabel(attackLevelLabel, "Attack");
-    configureComponentLabel(decayLevelLabel, "Decay");
-    configureComponentLabel(sustainLevelLabel, "Sustain");
-    configureComponentLabel(releaseLevelLabel, "Release");
+    configureComponentLabel(attackLevelLabel, juce::String("Attack"));
+    configureComponentLabel(decayLevelLabel, juce::String("Decay"));
+    configureComponentLabel(sustainLevelLabel, juce::String("Sustain"));
+    configureComponentLabel(releaseLevelLabel, juce::String("Release"));
 }
 
 void ADSRComponent::paint(juce::Graphics &g)

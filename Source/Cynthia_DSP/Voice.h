@@ -58,16 +58,19 @@ struct Voice
         return filtered_sample * envelope * amplitude * amplitudeModulator;
         
         /*
-            little trick for debugging the envelope or lfo:
-                just return the envelope or lfo and view the output through the oscilloscope
+            little trick for debugging the envelope or lfo: 
+
+                return envelope;
+                return lfoAmount;
+
+            this will let us view output through oscilloscope
         */
-        // return envelope;
-        // return lfoAmount;
+        
     }
 
-    void noteOff()
+    void prepareWavetable(float frequency, float sampleRate)
     {
-        env.noteOff();
+        osc.prepareWavetable(frequency, sampleRate);
     }
 
     void setWaveformIndicesOsc(int newWaveformIndexA, int newWaveformIndexB)
@@ -83,6 +86,51 @@ struct Voice
     void setDetuneCentsOsc(float newDetuneCents)
     {
         osc.setDetuneCents(newDetuneCents);
+    }
+
+    void prepareFilter(float sampleRate)
+    {
+        filter.prepare(sampleRate);
+    }
+
+    void setFilterType(int newType)
+    {
+        filter.setMode(newType);
+    }
+
+    void setFilterCutoff(float newCutoff)
+    {
+        filter.setCutoff(newCutoff);
+    }
+
+    void setFilterResonance(float newResonance)
+    {
+        filter.setResonance(newResonance);
+    }
+
+    void prepareEnvelope(float sampleRate)
+    {
+        env.prepare(sampleRate);
+    }
+
+    void setEnvelopeParameters(float attack, float decay, float sustain, float release)
+    {
+        env.setParameters(attack, decay, sustain, release);
+    }
+
+    void startEnvelope()
+    {
+        env.noteOn();
+    }
+
+    void stopEnvelope()
+    {
+        env.noteOff();
+    }
+
+    void prepareLFO(float lfoRate, float sampleRate)
+    {
+        lfo.prepareLFO(lfoRate, sampleRate);
     }
 
     void setWaveformIndicesLFO(int newWaveformIndexA, int newWaveformIndexB)

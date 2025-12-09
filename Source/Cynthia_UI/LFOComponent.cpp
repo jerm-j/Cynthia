@@ -1,6 +1,6 @@
 #include "Cynthia_UI/LFOComponent.h"
 
-LFOComponent::LFOComponent(APVTS &apvts) : morphValueKnobAttachment(apvts, ParameterID::morphValueLFO.getParamID(), morphValueKnob),
+LFOComponent::LFOComponent(APVTS &apvts) :  morphValueKnobAttachment(apvts, ParameterID::morphValueLFO.getParamID(), morphValueKnob),
                                             detuneDentsKnobAttachment(apvts, ParameterID::detuneCentsLFO.getParamID(), detuneCentsKnob),
                                             modDepthKnobAttachment(apvts, ParameterID::modDepthLFO.getParamID(), modDepthKnob),
                                             modFreqKnobAttachment(apvts, ParameterID::modFreqLFO.getParamID(), modFreqKnob),
@@ -15,9 +15,9 @@ LFOComponent::LFOComponent(APVTS &apvts) : morphValueKnobAttachment(apvts, Param
     configureComboBox(wavetypeBComboBox, juce::StringArray{"Sine", "Saw", "Triangle", "Square"});
 
     configureComponentLabel(morphValueLabel, juce::String("Morph"));
-    configureComponentLabel(detuneCentsLabel, "Detune");
-    configureComponentLabel(modDepthLabel, "Mod Depth");
-    configureComponentLabel(modFreqLabel, "Mod Freq");
+    configureComponentLabel(detuneCentsLabel, juce::String("Detune"));
+    configureComponentLabel(modDepthLabel, juce::String("Mod Depth"));
+    configureComponentLabel(modFreqLabel, juce::String("Mod Freq"));
     configureComponentLabel(wavetypeALabel, juce::String("Wavetype A"));
     configureComponentLabel(wavetypeBLabel, juce::String("Wavetype B"));
 }

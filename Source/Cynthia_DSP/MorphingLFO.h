@@ -1,3 +1,13 @@
+/*
+    MorphingLFO.h
+
+    An LFO class that subclasses MorphingOscillator
+
+    Relies on the main oscillator and uses the same underlying logic for wavetable generation, table lookups, morphing and detuning...
+
+    Extensions are the LFO rate and modulation depth parameters which are specific to an LFO
+*/
+
 #pragma once
 
 #include "Cynthia_DSP/MorphingOscillator.h"

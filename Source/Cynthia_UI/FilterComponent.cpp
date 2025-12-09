@@ -1,17 +1,17 @@
 #include "Cynthia_UI/FilterComponent.h"
 
-FilterComponent::FilterComponent(APVTS &apvts) : cutoffFrequencyAttachment(apvts, ParameterID::filterCutoff.getParamID(), cutoffFrequencyKnob),
-                                                 resonanceLevelAttachment(apvts, ParameterID::filterResonance.getParamID(), resonanceLevelKnob),
-                                                 filterTypeAttachment(apvts, ParameterID::filterType.getParamID(), filterTypeComboBox)
+FilterComponent::FilterComponent(APVTS &apvts) :    cutoffFrequencyAttachment(apvts, ParameterID::filterCutoff.getParamID(), cutoffFrequencyKnob),
+                                                    resonanceLevelAttachment(apvts, ParameterID::filterResonance.getParamID(), resonanceLevelKnob),
+                                                    filterTypeAttachment(apvts, ParameterID::filterType.getParamID(), filterTypeComboBox)
 {
     configureKnob(cutoffFrequencyKnob);
     configureKnob(resonanceLevelKnob);
 
     configureComboBox(filterTypeComboBox, juce::StringArray{"LP", "HP", "BP"});
     
-    configureComponentLabel(cutoffFrequencyLabel, "Cutoff Freq");
-    configureComponentLabel(resonanceLevelLabel, "Q");
-    configureComponentLabel(filterTypeLabel, "Filter Type");
+    configureComponentLabel(cutoffFrequencyLabel, juce::String("Cutoff Freq"));
+    configureComponentLabel(resonanceLevelLabel, juce::String("Q"));
+    configureComponentLabel(filterTypeLabel, juce::String("Filter Type"));
 }
 
 void FilterComponent::paint(juce::Graphics &g)

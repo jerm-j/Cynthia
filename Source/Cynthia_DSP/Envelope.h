@@ -1,3 +1,11 @@
+/*
+    Envelope.h
+
+    A simple envelope class that wraps a JUCE ADSR object.
+
+*/
+
+
 #pragma once
 #include <juce_dsp/juce_dsp.h>
 
@@ -6,7 +14,7 @@ class Envelope
 public:
     Envelope() {};
 
-    void prepare(float sampleRate, float samplesPerBLock)
+    void prepare(float sampleRate)
     {
         adsr.setSampleRate(sampleRate);
     }

@@ -21,7 +21,7 @@ void Synth::deallocateResources()
     // need to implement
 }
 
-// reset the synth's voice back to a "cleared" state
+// reset the synth's voices back to a "cleared" state
 void Synth::reset()
 {
     for (Voice &voice : voices)
@@ -30,16 +30,6 @@ void Synth::reset()
 
 void Synth::render(juce::AudioBuffer<float> &outputBuffers, int sampleCount, int bufferOffset)
 {
-    // this only renders the voice if the envelope is still active.
-    /*
-        For future me:
-            knowing when a voice is no longer used is important for polyphony
-            and voice management.
-
-            The voice stealing logic will look at which voices are not currently playing and it uses
-            the envelope's active state for this.
-    */
-
     for (int sample = 0; sample < sampleCount; ++sample)
     {
         float output = 0.0f;
@@ -118,6 +108,90 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     }
 }
 
+// based on Matthijs Hollemans' voice-stealing logic
+// Source: "Creating Synthesizer Plug-ins with C++ and JUCE"
+int Synth::findFreeVoice() const
+{
+    int freeVoiceIndex = 0;
+    float refLevel = 1.0f; // louder than any envelope
+
+    for (int voiceIndex = 0; voiceIndex < MAX_VOICES; ++voiceIndex)
+    {
+        const auto& voice = voices[voiceIndex];
+        float level = voice.env.getCurrentLevel();
+
+        if (!voice.env.isActive())
+        {
+            return voiceIndex;
+        }
+
+        if(level < refLevel)
+        {
+            refLevel = level;
+            freeVoiceIndex = voiceIndex;
+        }
+    }
+
+    return freeVoiceIndex;
+}
+
+// starts a single voice by choosing a voice at the given index
+// initializes the dsp modules
+void Synth::startVoice(int voiceIndex, int note, int velocity)
+{
+    Voice &voice = voices[voiceIndex];
+
+    voice.note = note;
+    voice.amplitude = (velocity / 127.0f) * outputGain;
+    float frequency = static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(note));
+    
+    voice.prepareWavetable(frequency, sampleRate);
+    voice.setWaveformIndicesOsc(waveformIndexAOsc, waveformIndexBOsc);
+    voice.setMorphValueOsc(morphValueOsc);
+    voice.setDetuneCentsOsc(detuneCentsOsc);
+
+    voice.prepareLFO(modFreqLFO, sampleRate);
+    voice.setWaveformIndicesLFO(waveformIndexALFO, waveformIndexBLFO);
+    voice.setMorphValueLFO(morphValueLFO);
+    voice.setDetuneCentsLFO(detuneCentsLFO);
+    voice.setModDepthLFO(modDepthLFO);
+
+    voice.prepareFilter(sampleRate);
+    voice.setFilterCutoff(filterCutoff);
+    voice.setFilterResonance(filterResonance);
+    voice.setFilterType(filterType);
+
+    voice.prepareEnvelope(sampleRate);
+    voice.setEnvelopeParameters(envAttack, envDecay, envSustain, envRelease);
+    voice.startEnvelope();
+}
+
+// dispatched from midiMessage()
+void Synth::noteOn(int note, int velocity)
+{
+    int freeVoiceIndex = 0; // voice index 0 = mono voice
+
+    if (numVoices > 1) // polyphony activated
+    {
+        freeVoiceIndex = findFreeVoice();
+    }
+
+    startVoice(freeVoiceIndex, note, velocity);
+}
+
+// dispatched from midiMessage()
+void Synth::noteOff(int note)
+{
+    for (Voice &voice : voices)
+    {
+        if (voice.note == note)
+        {
+            voice.stopEnvelope();
+            voice.note = 0;
+        }
+    }
+}
+
 void Synth::setOscMorphValue(float newMorphValue)
 {
     morphValueOsc = juce::jlimit(0.0f, 1.0f, newMorphValue);
@@ -132,6 +206,41 @@ void Synth::setOscWaveformIndices(int newWaveformIndexA, int newWaveformIndexB)
 {
     waveformIndexAOsc = juce::jlimit(0, 3, newWaveformIndexA);
     waveformIndexBOsc = juce::jlimit(0, 3, newWaveformIndexB);
+}
+
+void Synth::setFilterType(int newType)
+{
+    filterType = newType;
+}
+
+void Synth::setFilterCutoff(float newCutoff)
+{
+    filterCutoff = newCutoff;
+}
+
+void Synth::setFilterResonance(float newResonance)
+{
+    filterResonance = newResonance;
+}
+
+void Synth::setEnvAttack(float attack)
+{
+    envAttack = attack;
+}
+
+void Synth::setEnvDecay(float decay)
+{
+    envDecay = decay;
+}
+
+void Synth::setEnvSustain(float sustain)
+{
+    envSustain = sustain;
+}
+    
+void Synth::setEnvRelease(float release)
+{   
+    envRelease = release;
 }
 
 void Synth::setLFOMorphValue(float newMorphValue)
@@ -158,83 +267,4 @@ void Synth::setLFOModDepthValue(float newModDepth)
 void Synth::setLFOModFreqValue(float frequency) 
 {
     modFreqLFO = juce::jlimit(1.0f, 500.0f,frequency);
-}
-
-int Synth::findFreeVoice() const
-{
-    int freeVoiceIndex = 0;
-    float refLevel = 1.0f; // louder than any envelope
-
-    for (int voiceIndex = 0; voiceIndex < MAX_VOICES; ++voiceIndex)
-    {
-        const auto& voice = voices[voiceIndex];
-        float level = voice.env.getCurrentLevel();
-
-        if (!voice.env.isActive())
-        {
-            return voiceIndex;
-        }
-
-        if(level < refLevel)
-        {
-            refLevel = level;
-            freeVoiceIndex = voiceIndex;
-        }
-    }
-
-    return freeVoiceIndex;
-}
-
-void Synth::startVoice(int voiceIndex, int note, int velocity)
-{
-    Voice &voice = voices[voiceIndex];
-
-    voice.note = note;
-    voice.amplitude = (velocity / 127.0f) * outputGain;
-    auto frequency = juce::MidiMessage::getMidiNoteInHertz(note);
-    
-    voice.osc.prepareWavetable(static_cast<float>(frequency), sampleRate);
-    voice.setWaveformIndicesOsc(waveformIndexAOsc, waveformIndexBOsc);
-    voice.setMorphValueOsc(morphValueOsc);
-    voice.setDetuneCentsOsc(detuneCentsOsc);
-
-    voice.lfo.prepareLFO(modFreqLFO, sampleRate);
-    voice.setWaveformIndicesLFO(waveformIndexALFO, waveformIndexBLFO);
-    voice.setMorphValueLFO(morphValueLFO);
-    voice.setDetuneCentsLFO(detuneCentsLFO);
-    voice.setModDepthLFO(modDepthLFO);
-    
-    voice.filter.prepare(sampleRate);
-    voice.filter.setCutoff(filterCutoff);
-    voice.filter.setResonance(filterResonance);
-    voice.filter.setMode(filterType);
-
-    Envelope &env = voice.env;
-    env.prepare(sampleRate, 0);
-    env.setParameters(envAttack, envDecay, envSustain, envRelease);
-    env.noteOn();
-}
-
-void Synth::noteOn(int note, int velocity)
-{
-    int freeVoiceIndex = 0; // voice index 0 = mono voice
-
-    if (numVoices > 1) // polyphony activated
-    {
-        freeVoiceIndex = findFreeVoice();
-    }
-
-    startVoice(freeVoiceIndex, note, velocity);
-}
-
-void Synth::noteOff(int note)
-{
-    for (Voice &voice : voices)
-    {
-        if (voice.note == note)
-        {
-            voice.noteOff();
-            voice.note = 0;
-        }
-    }
 }

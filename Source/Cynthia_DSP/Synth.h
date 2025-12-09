@@ -35,6 +35,17 @@ class Synth
         void setOscWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
         void setOscDetuneCentsValue(float newDetuneCents);
 
+        // Filter object param setters
+        void setFilterType(int newType);
+        void setFilterCutoff(float newCutoff);
+        void setFilterResonance(float newResonance);
+
+        // Envelope object param setters
+        void setEnvAttack(float attack);
+        void setEnvDecay(float decay);
+        void setEnvSustain(float sustain);
+        void setEnvRelease(float release);
+
         // LFO object param setters
         void setLFOMorphValue(float newMorphValue);
         void setLFOWaveformIndices(int newWaveformIndexA, int newWaveformIndexB);
